@@ -61,7 +61,4 @@ def main():
         player.bet = 0
         print(player)
 
-
-
-#test()
 main()
