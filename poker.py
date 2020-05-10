@@ -4,52 +4,17 @@ from player_class import *
 from hand_class import *
 from cards_deck import *
 
-def test():
-    # card1 = Card("3", "hearts")
-    # card2 = Card("King", "spades")
-    # myhand = Hand()
-    # myhand.add_card(card1)
-    # myhand.show_hand()
-    # myhand.add_card(card2)
-    # myhand.show_hand()
-    #
-    # deck = Deck()
-    # for i in range(50):
-    #     deck.draw_card()
-
-    players = []
-    players.append(Player("Noah"))
-    players.append(Player("Tova"))
-    players.append(Player("Alex"))
-
-    game = Game("Queens", players, 1)
-    # test_card_1 = game.deck.cards[2]
-    # # test_card_2 = game.deck.cards[10]
-    # # test_card_3 = game.deck.cards[18]
-    # # test_card_4 = game.deck.cards[1]
-    # test_card_1.encode()
-    # print(test_card_1)
-
-
-    #print(ascii_version_of_card(test_card_1, test_card_2, test_card_3, test_card_4))
-    #print(ascii_version_of_hidden_card(test_card_1, test_card_2, test_card_3, test_card_4))
-    #print(ascii_version_of_card(card))
-    game.play()
-
 def main():
     #set up players
     players = []
     player_info = open('player_info.txt', 'w')
     player_info.close()
-    players.append(Player("Noah"))
-    players.append(Player("Tova"))
-    players.append(Player("Alex"))
-    #players.append(Player("Steve"))
-    # while(1==1):
-    #     player_name = input("Enter plyer name (type done to move on):  ")
-    #     if player_name == "done":
-    #         break
-    #     players.append(Player(player_name))
+    
+    while(1==1):
+        player_name = input("Enter plyer name (type done to move on):  ")
+        if player_name == "done":
+            break
+        players.append(Player(player_name))
 
     dealer_i =  0
     while(1==1):
