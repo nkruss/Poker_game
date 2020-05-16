@@ -19,6 +19,8 @@ def decryptor(base_deck, card_offset, inverse, code):
     print(ascii_version_of_card(card))
 
 def is_valid(code):
+    """Returns True/False depending on if the inputed code is valid """
+
     valid = True
 
     #check code legth
@@ -83,7 +85,7 @@ def main():
         while(codes_inputted == False):
             code = input("Enter the card code:  ")
             if code == 'next':
-                for i in range(20):
+                for i in range(10):
                     print()
                 codes_inputted = True
             elif code == 'quit':

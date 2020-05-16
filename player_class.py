@@ -1,12 +1,12 @@
 from hand_class import *
 from cards_deck import *
 
-class Player(): #need to finish making encription key
+class Player():
 
-    def __init__(self, name):
+    def __init__(self, name, starting_chip_stack):
         self.name = name
         self.hand = Hand()
-        self.chip_stack = 500
+        self.chip_stack = starting_chip_stack
         self.bet = 0
         self.legs = 0
 
@@ -17,11 +17,16 @@ class Player(): #need to finish making encription key
 
         player_info = open('player_info.txt', 'a')
         info_string = f"{self.name}\n"
-        info_string += f"card offset = {self.card_offset}, card multiplayer = {self.card_multiplier}, deck_multiplier = {self.deck_multiplier}"
+        info_string += f"card offset = {self.card_offset}, card multiplier = {self.card_multiplier}, deck_multiplier = {self.deck_multiplier}"
         print(info_string, file=player_info)
 
 
     def aunti(self, amount):
+        """
+        amount = int
+        Funtion to remove the aunti amount from a players chip stack
+        """
+
         self.chip_stack -= amount
 
     def __str__(self):
@@ -33,6 +38,10 @@ class Player(): #need to finish making encription key
         print(f"{self.name}\n{self.hand}")
 
     def reveal_card(self, index):
+        """
+        index = int (location in player hand of target card)
+        Changes target card type to up
+        """
         self.hand.cards[index].type = "up"
 
     def pass_cards(self, cards: list):
@@ -52,18 +61,6 @@ class Player(): #need to finish making encription key
     def print_hand_to_file(self):
         poker_hands = open('poker_hands.txt', 'a')
         hand_string = f"{self.name}\n"
-        # down_indexes = []
-        # for card in self.hand.cards:
-        #     if card.type == "down":
-        #         card.type = "up"
-        #         index = self.hand.cards.index(card)
-        #         down_indexes.append(index)
-        # hand_string += ascii_version_of_hand(self.hand.cards)
-        # print(hand_string, file=poker_hands)
-        # poker_hands.close()
-        #
-        # for index in down_indexes:
-        #     self.hand.cards[index].type = "down"
 
         for card in self.hand.cards:
             hand_string += f"{card}, "

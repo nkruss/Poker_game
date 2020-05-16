@@ -136,41 +136,6 @@ class Card(): #need to finish encode function
         code = first_char + second_char + third_char
         return code
 
-        # key = player.key
-        # card_values = {
-        #     'Ace': "0001",  # value of the ace is high until it needs to be low
-        #     '2': "0010",
-        #     '3': "0011",
-        #     '4': "0100",
-        #     '5': "0101",
-        #     '6': "0110",
-        #     '7': "0111",
-        #     '8': "1000",
-        #     '9': "1001",
-        #     '10': "1010",
-        #     'Jack': "1011",
-        #     'Queen': "1100",
-        #     'King': "1101"
-        # }
-        # suit_values = {
-        #     'Spades': "001",  # value of the ace is high until it needs to be low
-        #     'Clubs': "010",
-        #     'Diamonds': "011",
-        #     'Hearts': "100"
-        # }
-        #
-        # code = ""
-        # rank_code = card_values[self.rank]
-        # suit_code = suit_values[self.suit]
-        # options = [0,1]
-        # random_components = []
-        # for i in range(5):
-        #     random_components.append(str(random.choice(options)))
-        # print(random_components)
-        # code = random_components[0] + rank_code[2] + rank_code[3] + random_components[1] + suit_code[1] + rank_code[0] + random_components[2] + suit_code[2] + random_components[3] + random_components[4] + suit_code[0] + rank_code[1]
-        # code = "|" +random_components[0] + rank_code[2] + rank_code[3] + suit_code[1] + rank_code[0] + suit_code[2] + random_components[4] + suit_code[0] + rank_code[1] + "|"
-        # return code
-
 class Deck():
 
     def __init__(self):

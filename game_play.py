@@ -4,7 +4,7 @@ from hand_class import *
 from cards_deck import *
 
 class Game():
-    #add 1 card pass the trash (use legs to keep track of whose in and whose out)
+    #finish working on 1 card pass the trash
 
     def __init__(self, gametype: str, players: list, dealer_i: int):
         #need to implement 7 card screw?, 0-54, elivator?, kings?
@@ -73,17 +73,15 @@ class Game():
             self.dealtype = "1_card_screw"
 
 
-    def __str__(self): #need to add for encoding cards
+    def __str__(self):
         if self.dealtype == "elevator":
             if self.game_over:
                 string = f"\n\n{self.gametype}: {self.rules} \nPot is {self.pot}\n"
-                #need to print table Table:\n{self.table}\n
                 for player in self.players:
                     string += str(player)
                 string += self.table.elevator_display()
             else:
                 string = f"\n\n{self.gametype}: {self.rules} \nPot is {self.pot}\n"
-                #need to print table Table:\n{self.table}\n
                 for player in self.players:
                     string += f"{player.name}: chip stack is {player.chip_stack}\n"
                 string += self.table.elevator_display()
@@ -154,7 +152,8 @@ class Game():
             self.winner()
 
         elif self.dealtype == "1_card_screw":
-            self.one_card_screw()
+            print("Sorry this game is still under work")
+            #self.one_card_screw()
 
     #game deal functions
     def sevencard(self):
@@ -349,6 +348,7 @@ class Game():
                         someones_in = True
                         player_in_index = player_i
                         player_in_name = player.name
+                        player_in = self.players[player_in_index]
                         break
 
                 #loop through player lists again if someone went in
@@ -364,6 +364,21 @@ class Game():
 
                     #loop through challengers
                     for challenger in challenger_list:
+                            print()
+                            print(f"{challenger.name}'s cards for {player_in.name} to view")
+                            string = "\t"
+                            for card in challenger.hand.cards:
+                                string += card.encode(player_in, self.deck.deck_code)
+                                string += "  "
+                            print(string)
+
+                            print(f"{player_in.name}'s cards for {challenger.name} to view")
+                            string = "\t"
+                            for card in player_in.hand.cards:
+                                string += card.encode(challenger, self.deck.deck_code)
+                                string += "  "
+                            print(string)
+
                             winner = input(f"who won {challenger.name} or {player_in_name}?  ")
                             self.side_bet(challenger, self.players[player_in_index], winner)
 
@@ -619,8 +634,10 @@ class Game():
             if self.dealer_i >= len(players_original) - 1:
                 print("looping dealer")
                 self.dealer_i = 0
+
             elif player_eliminated == True and losser_i == 0:
                 pass
+
             else:
                 #rotate dealer
                 self.dealer_i += 1
@@ -636,6 +653,9 @@ class Game():
 
     #helpfull functions
     def passing_cards(self, pass_direction, num_cards):
+        """Function for passing [num_cards] in each players hand in the
+        [pass_direction]"""
+
         for player in self.players:
             pass_recorded = False
             while(pass_recorded == False):
