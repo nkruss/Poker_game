@@ -1,4 +1,0 @@
-Noah
-card offset = 35469, card multiplier = 29808, deck_multiplier = 775
-Tova
-card offset = 38080, card multiplier = 42910, deck_multiplier = 780
