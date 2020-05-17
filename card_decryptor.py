@@ -1,68 +1,48 @@
 from cards_deck import *
+letters = '0123456789abcdefghijkLmnopqrstuvwxyz'
 
-def decryptor(base_deck, card_offset, inverse, code):
+def decryptor(base_deck, card_offset, inverse, codes):
+    cards = []
+    for code in codes:
+        if validate(code):
+            charNums = [letters.find(c) for c in code]
+            card_code = sum([(n*(36**(2-i))) for i, n in enumerate(charNums)])
+            card_code = ((card_code * inverse - card_offset) % 46133) % 52
+            cards.append(base_deck.cards[card_code])
+        else:
+            print('invalid input')
+            break
+    print(ascii_version_of_hand(cards))
 
-    from_base_36 = {"0":0, "1":1, "2":2, "3":3, "4":4, "5":5, "6":6, "7":7, "8":8, "9":9,
-                    "a":10, "b":11, "c":12, "d":13, "e":14, "f":15, "g":16, "h":17, "i":18, "j":19,
-                    "k":20, "l":21, "m":22, "n":23, "o":24, "p":25, "q":26, "r":27, "s":28, "t":29,
-                    "u":30, "v":31, "w":32, "x":33, "y":34, "z":35}
-
-    first_char = from_base_36[code[0]]
-    second_char = from_base_36[code[1]]
-    third_char = from_base_36[code[2]]
-
-    card_code = (first_char * (36 ** 2)) + (second_char * 36) + third_char
-
-    card_code = ((card_code * inverse - card_offset) % 46133) % 52
-
-    card = base_deck.cards[card_code]
-    print(ascii_version_of_card(card))
-
-def is_valid(code):
-    """Returns True/False depending on if the inputed code is valid """
-
+def validate(code):
     valid = True
-
-    #check code legth
-    if len(code) != 3:
-        print("code length error")
-        valid = False
-
-    valid_characters = ["0","1","2","3","4","5","6","7","8","9",
-                        "a","b","c","d","e","f","g","h","i","j","k",
-                        "l","m","n","o","p","q","r","s","t","u","v",
-                        "w","x","y","z"]
-
-    for char in code:
-        if char not in valid_characters:
-            print(f"{char} is an invalid character")
-            valid = False
-
+    if len(code)==3:
+        for char in code:
+            if char not in letters:
+                valid = False
     return valid
 
 def main():
     print("Make sure to be careful with initial inputs! :)")
 
     #get card offset inputed corectly
-    offset_inputted = False
-    while(offset_inputted == False):
+    while(1):
         try:
             card_offset = int(input("Enter your card_offset value:  "))
             if ((card_offset < 0) or (card_offset > 46132)):
                 pass
             else:
-                offset_inputted = True
+                break
         except:
             print("Invalid card_offset")
 
-    multiplier_inputted = False
-    while(multiplier_inputted == False):
+    while(1==1):
         try:
             card_multiplier = int(input("Enter your card_multiplier value:  "))
             if ((card_multiplier < 1) or (card_multiplier > 46132)):
                 pass
             else:
-                multiplier_inputted = True
+                break
         except:
             print("Invalid card_multiplier")
 
@@ -77,23 +57,19 @@ def main():
         inverse = (inverse * temp_inverse) % 46133
         remainder = (remainder * temp_inverse) % 46133
 
-    while(1==1):
+    while(1):
         print("Please type in the codes of the cards you want decoded.")
         print("Input each card one at a time. Type 'next' to move to next hand inputting cards. Type 'quit' to quit.")
 
-        codes_inputted = False
-        while(codes_inputted == False):
-            code = input("Enter the card code:  ")
-            if code == 'next':
-                for i in range(10):
-                    print()
-                codes_inputted = True
-            elif code == 'quit':
+        while(1):
+            inCode = input("Enter the card codes seperated by ' ':  ")
+            if inCode == 'next':
+                print('\n' for _ in range(10))
+                break
+            elif inCode == 'quit':
                 quit()
             else:
-                if is_valid(code):
-                    decryptor(base_deck, card_offset, inverse, code)
-                else:
-                    print("invalid code input")
+                codes = inCode.split(' ')
+                decryptor(base_deck, card_offset, inverse, codes)
 
 main()
