@@ -16,10 +16,13 @@ def decryptor(base_deck, card_offset, inverse, codes):
 
 def validate(code):
     valid = True
-    if len(code)==3:
-        for char in code:
-            if char not in letters:
-                valid = False
+    if len(code) != 3:
+        valid = False
+
+    for char in code:
+        if char not in letters:
+            valid = False
+
     return valid
 
 def main():
@@ -58,18 +61,23 @@ def main():
         remainder = (remainder * temp_inverse) % 46133
 
     while(1):
-        print("Please type in the codes of the cards you want decoded.")
-        print("Input each card one at a time. Type 'next' to move to next hand inputting cards. Type 'quit' to quit.")
+        print("Please type in the codes of the cards you want decoded. Untill you start a new had each new code will be added to the current hand")
+        print("Type 'next' to move to next hand inputting cards. Type 'quit' to quit.")
 
+        current_hand_codes = []
         while(1):
-            inCode = input("Enter the card codes seperated by ' ':  ")
+            inCode = input("Enter card code (to enter multiple codes seperate them by ' '):  ")
             if inCode == 'next':
-                print('\n' for _ in range(10))
+                for i in range(10):
+                    print('\n')
+                current_hand_codes = []
                 break
             elif inCode == 'quit':
                 quit()
             else:
-                codes = inCode.split(' ')
-                decryptor(base_deck, card_offset, inverse, codes)
+                new_codes = inCode.split(' ')
+                current_hand_codes = current_hand_codes + new_codes
+                print(current_hand_codes)
+                decryptor(base_deck, card_offset, inverse, current_hand_codes)
 
 main()
