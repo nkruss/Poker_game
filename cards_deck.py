@@ -1,6 +1,6 @@
 import random
 
-def ascii_version_of_card(*cards, return_string=True):
+def ascii_version_of_card(*cards, return_string=True, current_player=None, deck_code=None):
     #got off internet
     """
     Instead of a boring text version of the card we render an ASCII image of the card.
@@ -28,16 +28,30 @@ def ascii_version_of_card(*cards, return_string=True):
         suit = suits_name.index(card.suit)
         suit = suits_symbols[suit]
 
-        # add the individual card on a line by line basis
-        lines[0].append('┌─────────┐')
-        lines[1].append('│{}{}       │'.format(rank, space))  # use two {} one for char, one for space or char
-        lines[2].append('│         │')
-        lines[3].append('│         │')
-        lines[4].append('│    {}    │'.format(suit))
-        lines[5].append('│         │')
-        lines[6].append('│         │')
-        lines[7].append('│       {}{}│'.format(space, rank))
-        lines[8].append('└─────────┘')
+        if current_player != None:
+            card = cards[0]
+            # add the individual card on a line by line basis
+            lines[0].append('┌─────────┐')
+            lines[1].append('│{}{}       │'.format(rank, space))  # use two {} one for char, one for space or char
+            lines[2].append('│         │')
+            lines[3].append('│         │')
+            lines[4].append('│    {}    │'.format(suit))
+            lines[5].append(f"│  ({card.encode(current_player, deck_code)})  │")
+            lines[6].append('│         │')
+            lines[7].append('│       {}{}│'.format(space, rank))
+            lines[8].append('└─────────┘')
+        else:
+            # add the individual card on a line by line basis
+            lines[0].append('┌─────────┐')
+            lines[1].append('│{}{}       │'.format(rank, space))  # use two {} one for char, one for space or char
+            lines[2].append('│         │')
+            lines[3].append('│         │')
+            lines[4].append('│    {}    │'.format(suit))
+            lines[5].append('|         |')
+            lines[6].append('│         │')
+            lines[7].append('│       {}{}│'.format(space, rank))
+            lines[8].append('└─────────┘')
+
 
     result = []
     for index, line in enumerate(lines):
@@ -57,7 +71,7 @@ def ascii_version_of_hidden_card(*cards, return_string=True, current_player=None
     """
     if current_player != None:
         card = cards[0]
-        lines = [['┌─────────┐'], ['│░░░░░░░░░│'], ['│░░░░░░░░░│'], ['│░░░░░░░░░│'], [f"│░░░{card.encode(current_player, deck_code)}░░░|"], ['│░░░░░░░░░│'], ['│░░░░░░░░░│'], ['│░░░░░░░░░│'], ['└─────────┘']]
+        lines = [['┌─────────┐'], ['│░░░░░░░░░│'], ['│░░░░░░░░░│'], ['│░░░░░░░░░│'], [f"│░░░{card.encode(current_player, deck_code)}░░░│"], ['│░░░░░░░░░│'], ['│░░░░░░░░░│'], ['│░░░░░░░░░│'], ['└─────────┘']]
     else:
         # a flipper over card. # This is a list of lists instead of a list of string becuase appending to a list is better then adding a string
         lines = [['┌─────────┐'], ['│░░░░░░░░░│'], ['│░░░░░░░░░│'], ['│░░░░░░░░░│'], ['│░░░░░░░░░│'], ['│░░░░░░░░░│'], ['│░░░░░░░░░│'], ['│░░░░░░░░░│'], ['└─────────┘']]
@@ -91,7 +105,7 @@ def ascii_version_of_hand(cards, current_player=None, deck_code=None):
 
     for card in cards:
         if card.type == "up":
-            current_line = ascii_version_of_card(card, return_string=False)
+            current_line = ascii_version_of_card(card, return_string=False, current_player=current_player, deck_code=deck_code)
         else:
             current_line = ascii_version_of_hidden_card(card, return_string=False, current_player=current_player, deck_code=deck_code)
 
@@ -125,7 +139,7 @@ class Card(): #need to finish encode function
 
         to_base_36 = {0:"0", 1:"1", 2:"2", 3:"3", 4:"4", 5:"5", 6:"6", 7:"7", 8:"8", 9:"9",
                     10:"a", 11:"b", 12:"c", 13:"d", 14:"e", 15:"f", 16:"g", 17:"h", 18:"i", 19:"j",
-                    20:"k", 21:"l", 22:"m", 23:"n", 24:"o", 25:"p", 26:"q", 27:"r", 28:"s", 29:"t",
+                    20:"k", 21:"L", 22:"m", 23:"n", 24:"o", 25:"p", 26:"q", 27:"r", 28:"s", 29:"t",
                     30:"u", 31:"v", 32:"w", 33:"x", 34:"y", 35:"z"
                     }
 
@@ -150,7 +164,6 @@ class Deck():
                 code_value += 1
 
         self.deck_code = random.randint(0,886)
-        print(self.deck_code)
 
     def draw_card(self):
         card = random.choice(self.cards)

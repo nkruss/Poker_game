@@ -1,0 +1,6 @@
+N
+card offset = 14413, card multiplier = 28235, deck_multiplier = 3
+A
+card offset = 41055, card multiplier = 29744, deck_multiplier = 2
+T
+card offset = 5063, card multiplier = 5304, deck_multiplier = 764

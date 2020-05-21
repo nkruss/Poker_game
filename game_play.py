@@ -6,7 +6,7 @@ from cards_deck import *
 class Game():
     #finish working on 1 card pass the trash
 
-    def __init__(self, gametype: str, players: list, dealer_i: int):
+    def __init__(self, gametype: str, players: list, dealer_i: int, auntie: int):
         #need to implement 7 card screw?, 0-54, elivator?, kings?
 
         self.pot = 0
@@ -16,21 +16,17 @@ class Game():
 
         cheap_games = ["Nicks"]
         norm_games = ["Baseball", "Queens", "Whores", "Texas", "Omaha", "0/54", "7_card_screw", "Elevator"]
-        if gametype in cheap_games:
-            for player in players:
-                player.aunti(5)
-                self.pot += 5
 
-        elif gametype in norm_games:
+        if gametype in norm_games:
             for player in players:
-                player.aunti(10)
-                self.pot += 10
+                player.auntie(auntie)
+                self.pot += auntie
 
         self.deck = Deck()
         self.table = Hand()
         self.gametype = gametype
         self.rules = ""
-        self.nick_cap = 100
+        self.nick_cap = 0
         self.winning_player = None
 
         self.current_bet = 0
@@ -77,8 +73,6 @@ class Game():
         if self.dealtype == "elevator":
             if self.game_over:
                 string = f"\n\n{self.gametype}: {self.rules} \nPot is {self.pot}\n"
-                for player in self.players:
-                    string += str(player)
                 string += self.table.elevator_display()
             else:
                 string = f"\n\n{self.gametype}: {self.rules} \nPot is {self.pot}\n"
@@ -147,12 +141,12 @@ class Game():
             self.winner_split()
 
         elif self.dealtype == "baseball":
-            self.Baseball()
+            self.baseball()
             self.reveal_all_hands()
             self.winner()
 
         elif self.dealtype == "1_card_screw":
-            print("Sorry this game is still under work")
+            print("Sorry this game is still under constuction")
             #self.one_card_screw()
 
     #game deal functions
@@ -160,25 +154,23 @@ class Game():
         "game play for 7 card stud"
         while(self.game_over == False):
             #deal two down cards to each player
-            for i in range(2):
-                self.deal_down()
+            self.deal_down(display=False)
+            self.deal_down()
 
             for i in range(4):
+                #deal next up card
+                self.deal_up()
+
                 #betting for the round
                 self.current_bet = 0
                 self.betting(self.players)
                 if self.game_over == True:
                     break
 
-                #deal next up card
-                self.deal_up()
-
-            #final down card
-            self.current_bet = 0
-            self.betting(self.players)
             if self.game_over == True:
                 break
 
+            #final down card
             self.deal_down()
 
             self.current_bet = 0
@@ -193,8 +185,8 @@ class Game():
         while(self.game_over == False):
             four_price = 5
             #deal two down cards to each player
-            for i in range(2):
-                self.deal_down()
+            self.deal_down(display=False)
+            self.deal_down()
             four_price = self.buy_down_four(four_price)
 
             for i in range(4):
@@ -208,6 +200,9 @@ class Game():
                 self.betting(self.players)
                 if self.game_over == True:
                     break
+
+            if self.game_over == True:
+                break
 
             self.deal_down()
             four_price = self.buy_down_four(four_price)
@@ -223,8 +218,8 @@ class Game():
         "game play for holdem deal"
         while(self.game_over == False):
             #deal two down cards to each player
-            for i in range(2):
-                self.deal_down()
+            self.deal_down(display=False)
+            self.deal_down()
 
             #betting pre flop
             self.current_bet = 0
@@ -272,8 +267,9 @@ class Game():
         "game play for holdem deal"
         while(self.game_over == False):
             #deal two down cards to each player
-            for i in range(4):
-                self.deal_down()
+            for i in range(3):
+                self.deal_down(display=False)
+            self.deal_down()
 
             #betting pre flop
             self.current_bet = 0
@@ -320,6 +316,9 @@ class Game():
     def nicks(self):
         "game play for nicks deal"
 
+        #get pot cap amount
+        self.nick_cap = int(input("Enter pot cap amount:  "))
+
         #create a new player list to store nick order
         players_original = self.players.copy()
         highest_num_legs = 0
@@ -327,6 +326,12 @@ class Game():
         while(highest_num_legs < 3):
             new_round = True
             while(1==1):
+                #add new aunties
+                for player in self.players:
+                    player.hand.reset()
+                    player.auntie(5)
+                    self.pot += 5
+
                 someones_in = False
                 player_in_index = 0
                 player_in_name = ""
@@ -334,7 +339,7 @@ class Game():
 
                 #if new round
                 if new_round:
-                    self.deal_down()
+                    self.deal_down(display=False)
                     self.deal_down()
 
                 else:
@@ -406,12 +411,6 @@ class Game():
                 self.dealer_i = 0
             self.players = players_original[self.dealer_i:] + players_original[:self.dealer_i]
 
-            #reset hands and add new auntis
-            for player in self.players:
-                player.hand.reset()
-                player.aunti(5)
-                self.pot += 5
-
             #reset Deck
             self.deck = Deck()
 
@@ -425,8 +424,9 @@ class Game():
         "game play for 0/54 deal"
         while(self.game_over == False):
             #deal 5 down cards to each player
-            for i in range(5):
-                self.deal_down()
+            for i in range(4):
+                self.deal_down(display=False)
+            self.deal_down()
 
             #fliping up cards
             for i in range(5):
@@ -467,8 +467,9 @@ class Game():
         up_or_down = input("Are we passing down or up D/U?  ")
         while(self.game_over == False):
             #deal 7 down cards to all players
-            for i in range(7):
-                self.deal_down()
+            for i in range(6):
+                self.deal_down(display=False)
+            self.deal_down()
 
             #pass 3
             self.passing_cards(up_or_down, 3)
@@ -501,8 +502,6 @@ class Game():
             input("click enter once people have determined if they're going low or high")
             print(self)
 
-
-
             self.game_over = True
 
     def elevator(self):
@@ -517,8 +516,15 @@ class Game():
             print(len(self.table.cards))
 
             #deal four down cards to each player
-            for i in range(4):
-                self.deal_down()
+            for i in range(3):
+                self.deal_down(display=False)
+            self.deal_down()
+
+            #print player hands
+            string = ''
+            for player in self.players:
+                string += player.coded_str_player(self.deck.deck_code)
+            print(string)
 
             #betting pre card flip
             self.current_bet = 0
@@ -882,6 +888,7 @@ class Game():
         while(winner_recorded == False):
             try:
                 winners = input("Who is the winner? (Enter winners names in the form high_winners:low_winners)  ")
+                #for only one person winning enter them as "player_name:"
                 high_low = winners.split(":")
                 high_winners = high_low[0].split(",")
                 low_winners = high_low[1].split(",")
@@ -934,11 +941,12 @@ class Game():
             player.hand.add_up_card(card)
         print(self)
 
-    def deal_down(self):
+    def deal_down(self, display=True):
         for player in self.players:
             card = self.deck.draw_card()
             player.hand.add_down_card(card)
-        print(self)
+        if display:
+            print(self)
 
     def betting(self, player_list):
         #get bet for every player
@@ -977,25 +985,24 @@ class Game():
         bet_recorded = False
         while(bet_recorded == False):
             try:
-                bet = input(f"{player.name} what is your bet? current bet is {current_bet} you have {player.bet} in:  ")
+                bet_action = input(f"{player.name} what is action (fold, check, call, raise)? current bet is {current_bet} you have {player.bet} in:  ")
 
                 #deal with fold
-                if bet == "fold":
+                if bet_action == "fold":
                     self.players.remove(player)
                     return 0
 
                 #deal with check
-                if bet == "check":
+                if bet_action == "check":
                     bet = 0
 
                 #deal with call
-                if bet == "call":
+                if bet_action == "call":
                     bet = current_bet - player.bet
 
-                #deal with numerical bet
-                if (player.bet + float(bet)) < current_bet:
-                    print("bet must be greater then the current bet")
-                    bet = self.bet(player, current_bet)
+                if bet_action == "raise":
+                    bet = input(f"what is your raise?:  ")
+                    bet = current_bet + float(bet)
 
                 bet = float(bet)
                 #exchange money

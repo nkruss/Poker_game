@@ -21,10 +21,10 @@ class Player():
         print(info_string, file=player_info)
 
 
-    def aunti(self, amount):
+    def auntie(self, amount):
         """
         amount = int
-        Funtion to remove the aunti amount from a players chip stack
+        Funtion to remove the auntie amount from a players chip stack
         """
 
         self.chip_stack -= amount

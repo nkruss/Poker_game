@@ -1,0 +1,6 @@
+N
+Jack_of_Spades, 7_of_Spades, 6_of_Hearts, Jack_of_Hearts, King_of_Diamonds, King_of_Clubs, 2_of_Spades, 
+A
+2_of_Hearts, 3_of_Hearts, 2_of_Clubs, 10_of_Diamonds, 8_of_Hearts, Queen_of_Spades, Ace_of_Spades, 
+T
+5_of_Clubs, 6_of_Spades, 8_of_Diamonds, 4_of_Hearts, 6_of_Diamonds, 5_of_Diamonds, Queen_of_Clubs, 

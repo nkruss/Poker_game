@@ -5,7 +5,8 @@ from hand_class import *
 from cards_deck import *
 
 def main():
-    starting_chip_stack = input("Enter starting chip stack amount: ")
+    starting_chip_stack = int(input("Enter starting chip stack amount: "))
+    auntie = int(input("Enter auntie amount for games: "))
 
     #set up players
     players = []
@@ -24,7 +25,7 @@ def main():
     dealer_i =  0
     while(1==1):
         print()
-        print(f"New game {players[dealer_i].name} is dealer")
+        print(f"New game, {players[dealer_i].name} is dealer")
         for player in players:
             player.hand.reset()
             print(player)
@@ -51,7 +52,7 @@ def main():
             pass
 
         else:
-            game = Game(gametype, players, dealer_i)
+            game = Game(gametype, players, dealer_i, auntie)
             game.play()
 
         dealer_i += 1
@@ -60,11 +61,10 @@ def main():
         if dealer_i > len(players)-1:
             dealer_i = 0
 
-    #reset players hands and bet amount
-    for player in players:
-        player.hand.reset()
-        player.bet = 0
-        print(player)
+        #reset players hands and bet amount
+        for player in players:
+            player.hand.reset()
+            player.bet = 0
 
 
 
