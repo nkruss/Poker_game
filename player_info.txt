@@ -1,8 +1,0 @@
-Steve
-card offset = 6452, card multiplier = 12107, deck_multiplier = 84
-Noah
-card offset = 31654, card multiplier = 42690, deck_multiplier = 589
-Tova
-card offset = 13196, card multiplier = 5874, deck_multiplier = 47
-Mom
-card offset = 22558, card multiplier = 11772, deck_multiplier = 482
