@@ -17,7 +17,7 @@ class Player():
 
         player_info = open('player_info.txt', 'a')
         info_string = f"{self.name}\n"
-        info_string += f"card offset = {self.card_offset}, card multiplier = {self.card_multiplier}, deck_multiplier = {self.deck_multiplier}"
+        info_string += f"card offset = {self.card_offset}, card multiplier = {self.card_multiplier}"
         print(info_string, file=player_info)
 
 

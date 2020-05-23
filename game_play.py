@@ -727,8 +727,6 @@ class Game():
                     for index_i in range(len(cards_to_discard)):
                         cards_to_discard[index_i] = int(cards_to_discard[index_i]) - 1
 
-                    print(cards_to_discard)
-
                     counter = 0
                     for card_i in cards_to_discard:
                         cards_to_discard[counter] = player.hand.cards[card_i]

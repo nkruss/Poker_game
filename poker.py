@@ -55,11 +55,11 @@ def main():
             game = Game(gametype, players, dealer_i, auntie)
             game.play()
 
-        dealer_i += 1
+            dealer_i += 1
 
-        #loop the dealer
-        if dealer_i > len(players)-1:
-            dealer_i = 0
+            #loop the dealer
+            if dealer_i > len(players)-1:
+                dealer_i = 0
 
         #reset players hands and bet amount
         for player in players:
