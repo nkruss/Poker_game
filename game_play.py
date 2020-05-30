@@ -146,8 +146,7 @@ class Game():
             self.winner()
 
         elif self.dealtype == "1_card_screw":
-            print("Sorry this game is still under constuction")
-            #self.one_card_screw()
+            self.one_card_screw()
 
     #game deal functions
     def sevencard(self):
@@ -566,9 +565,15 @@ class Game():
             self.game_over = True
 
     def one_card_screw(self):
-        "game play for nicks deal"
+        "game play for one card pass the trash"
 
         players_original = self.players.copy()
+
+        #create a dictonary of the players where the player's name is the key
+        #and the key value is whether or not the player is still in
+        player_dic = {}
+        for player in self.players:
+            player_dic[player.name] = True
 
         up_or_down = input("Are we passing down or up D/U?  ")
         stack_num = input("How many stacks of 5 chips are each person going to start with?  ")
@@ -626,13 +631,11 @@ class Game():
                 except:
                     print("error processing losser try again")
 
-            #print("current dealer is", self.players[dealer_i])
-
             player_eliminated = False
             #check if anyone is out of legs
             for player in self.players:
                 if player.legs == 0:
-                    players_original.remove(player)
+                    player_dic[player.name] = False
                     player_eliminated = True
 
 
@@ -641,14 +644,25 @@ class Game():
                 print("looping dealer")
                 self.dealer_i = 0
 
-            elif player_eliminated == True and losser_i == 0:
+            elif player_eliminated == True:
                 pass
 
             else:
                 #rotate dealer
                 self.dealer_i += 1
 
-            self.players = players_original[self.dealer_i:] + players_original[:self.dealer_i]
+            self.players = []
+            for player_i in range(self.dealer_i, len(players_original)):
+                player_name = players_original[player_i].name
+                #check if player is still in game and if so add them to the player list
+                if player_dic[player_name] == True:
+                    self.players.append(players_original[player_i])
+
+            for player_i in range(self.dealer_i):
+                player_name = players_original[player_i].name
+                #check if player is still in game and if so add them to the player list
+                if player_dic[player_name] == True:
+                    self.players.append(players_original[player_i])
 
             #reset players hands
             for player in self.players:
