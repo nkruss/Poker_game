@@ -1019,7 +1019,12 @@ class Game():
 
                 #deal with check
                 if bet_action == "check":
-                    bet = 0
+                    #if bets not equal to zero create error to get new bet imput
+                    if current_bet != 0:
+                        print("Can't check. Current bet is not zero")
+                        prin(error)
+                    else:
+                        bet = 0
 
                 #deal with call
                 if bet_action == "call":
@@ -1027,7 +1032,7 @@ class Game():
 
                 if bet_action == "raise":
                     bet = input(f"what is your raise?:  ")
-                    bet = current_bet + float(bet)
+                    bet = current_bet - player.bet + float(bet)
 
                 bet = float(bet)
                 #exchange money
