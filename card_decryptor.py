@@ -62,18 +62,30 @@ def main():
 
     while(1):
         print("Please type in the codes of the cards you want decoded. Untill you start a new had each new code will be added to the current hand")
-        print("Type 'next' to move to next hand inputting cards. Type 'quit' to quit.")
+        print(" Type 'next' to move to next hand inputting cards")
+        print(" Type 'remove' to remove codes from current hand")
+        print(" Type 'quit' to quit")
 
         current_hand_codes = []
         while(1):
             inCode = input("Enter card code (to enter multiple codes seperate them by ' '):  ")
+
             if inCode == 'next':
                 for i in range(10):
                     print('\n')
                 current_hand_codes = []
                 break
+
             elif inCode == 'quit':
                 quit()
+
+            elif inCode == 'remove':
+                codes_to_remove = input(" Enter card code to remove (to enter multiple codes seperate them by ' '):  ")
+                target_codes = codes_to_remove.split(' ')
+                for code in target_codes:
+                    current_hand_codes.remove(code)
+                print(current_hand_codes)
+
             else:
                 new_codes = inCode.split(' ')
                 current_hand_codes = current_hand_codes + new_codes
