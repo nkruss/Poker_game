@@ -4,14 +4,10 @@ letters = '0123456789abcdefghijkLmnopqrstuvwxyz'
 def decryptor(base_deck, card_offset, inverse, codes):
     cards = []
     for code in codes:
-        if validate(code):
-            charNums = [letters.find(c) for c in code]
-            card_code = sum([(n*(36**(2-i))) for i, n in enumerate(charNums)])
-            card_code = ((card_code * inverse - card_offset) % 46133) % 52
-            cards.append(base_deck.cards[card_code])
-        else:
-            print('invalid input')
-            break
+        charNums = [letters.find(c) for c in code]
+        card_code = sum([(n*(36**(2-i))) for i, n in enumerate(charNums)])
+        card_code = ((card_code * inverse - card_offset) % 46133) % 52
+        cards.append(base_deck.cards[card_code])
     print(ascii_version_of_hand(cards))
 
 def validate(code):
@@ -61,7 +57,7 @@ def main():
         remainder = (remainder * temp_inverse) % 46133
 
     while(1):
-        print("Please type in the codes of the cards you want decoded. Untill you start a new had each new code will be added to the current hand")
+        print("Please type in the codes of the cards you want decoded. Until you start a new had each new code will be added to the current hand")
         print(" Type 'next' to move to next hand inputting cards")
         print(" Type 'remove' to remove codes from current hand")
         print(" Type 'quit' to quit")
@@ -91,6 +87,13 @@ def main():
 
             else:
                 new_codes = inCode.split(' ')
+
+                for code in new_codes:
+                    #remove invalid card codes from hand
+                    if validate(code) == False:
+                        new_codes.remove(code)
+                        print(f"{code} was an invalid card code)
+                
                 current_hand_codes = current_hand_codes + new_codes
                 print(current_hand_codes)
                 decryptor(base_deck, card_offset, inverse, current_hand_codes)
