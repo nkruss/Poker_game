@@ -15,7 +15,7 @@ class Game():
         self.players = players[dealer_i:] + players[:dealer_i]
 
         cheap_games = ["Nicks"]
-        norm_games = ["Baseball", "Queens", "Whores", "Texas", "Omaha", "0/54", "7_card_screw", "Elevator"]
+        norm_games = ["Baseball", "Queens", "Whores", "Texas", "Omaha", "0/54", "7_card_screw", "Elevator", "D_and_G"]
 
         if gametype in norm_games:
             for player in players:
@@ -44,7 +44,7 @@ class Game():
             self.rules = "7 card stud: queens are wild and card following latest up queen is wild"
             self.dealtype = "sevencard"
         elif gametype == "Whores":
-            self.rules = "7 card stud: queens are wild and card following latest up queen is wild, high hand splits with high spade "
+            self.rules = "7 card stud: queens are wild and card following latest up queen is wild, high hand splits with high spade"
             self.dealtype = "sevencard_split"
         elif gametype == "Texas":
             self.rules = "Classic holdem"
@@ -67,7 +67,9 @@ class Game():
         elif gametype == "1_card_screw":
             self.rules = "1_card_screw: don't end up with the lowest card (Aces are low)"
             self.dealtype = "1_card_screw"
-
+        elif gametype == "D_and_G":
+            self.rules = "David and Goliath: 7 card stud, if you go high lowest down card is wild, if you go low highest down card is wild, last down card can be bought up"
+            self.dealtype = "D_and_G"
 
     def __str__(self):
         if self.dealtype == "elevator":
@@ -147,6 +149,11 @@ class Game():
 
         elif self.dealtype == "1_card_screw":
             self.one_card_screw()
+
+        elif self.dealtype == "D_and_G":
+            self.d_and_g()
+            self.reveal_all_hands()
+            self.winner_split()
 
     #game deal functions
     def sevencard(self):
@@ -316,7 +323,7 @@ class Game():
         "game play for nicks deal"
 
         #get pot cap amount
-        self.nick_cap = int(input("Enter pot cap amount:  "))
+        self.nick_cap = float(input("Enter pot cap amount:  "))
 
         #create a new player list to store nick order
         players_original = self.players.copy()
@@ -583,8 +590,6 @@ class Game():
             player.legs = int(stack_num)
 
         while(len(self.players) != 1):
-            print(len(self.players), self.dealer_i)
-            print("dealer is", self.players[self.dealer_i].name)
 
             #reset deck if not enough cards
             if len(self.deck.cards) < len(self.players) + 1:
@@ -641,7 +646,6 @@ class Game():
 
             #loop the dealer
             if self.dealer_i >= len(players_original) - 1:
-                print("looping dealer")
                 self.dealer_i = 0
 
             elif player_eliminated == True:
@@ -670,6 +674,48 @@ class Game():
 
         #give pot to the winner
         self.players[0].chip_stack += self.pot
+
+    def d_and_g(self): # need to add functionality for having last card up
+        "game play for David and Goliath"
+        up_value = float(input("How much do you want to charge for the last card to come up?  "))
+        while(self.game_over == False):
+            #deal two down cards to each player
+            self.deal_down(display=False)
+            self.deal_down()
+
+            for i in range(4):
+                #deal next up card
+                self.deal_up()
+
+                #betting for the round
+                self.current_bet = 0
+                self.betting(self.players)
+                if self.game_over == True:
+                    break
+
+            if self.game_over == True:
+                break
+
+            #final down card
+            for player in self.players:
+                card_type = input(f"{player.name} do you want your last card up for {up_value} (y/n)?   ")
+                if card_type == "y":
+                    card = self.deck.draw_card()
+                    player.hand.add_up_card(card)
+                    player.chip_stack -= up_value
+                    self.pot += up_value
+                else:
+                    card = self.deck.draw_card()
+                    player.hand.add_down_card(card)
+            print(self)
+
+
+            self.current_bet = 0
+            self.betting(self.players)
+            if self.game_over == True:
+                break
+
+            self.game_over = True
 
     #helpfull functions
     def passing_cards(self, pass_direction, num_cards):
@@ -900,7 +946,7 @@ class Game():
                 for player in self.players:
                     if player.name == winner:
                         player.chip_stack += self.pot
-                        winner_recorded= True
+                        winner_recorded = True
             except:
                 print("error processing winner try again")
 
@@ -912,6 +958,7 @@ class Game():
         winner_recorded = False
         while(winner_recorded == False):
             try:
+                print("special input ")
                 winners = input("Who is the winner? (Enter winners names in the form high_winners:low_winners)  ")
                 #for only one person winning enter them as "player_name:"
                 high_low = winners.split(":")
@@ -920,9 +967,9 @@ class Game():
 
                 #possible winner senerios
                 if high_winners[0] == '':
-                    low_winnings = self.pot
+                    low_winnings = self.pot / len(low_winners)
                 elif low_winners[0] == '':
-                    high_winnings = self.pot
+                    high_winnings = self.pot / len(high_winners)
                 else:
                     low_winnings = (self.pot / 2) / len(low_winners)
                     high_winnings = (self.pot / 2) / len(high_winners)

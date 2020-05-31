@@ -47,7 +47,7 @@ def ascii_version_of_card(*cards, return_string=True, current_player=None, deck_
             lines[2].append('│         │')
             lines[3].append('│         │')
             lines[4].append('│    {}    │'.format(suit))
-            lines[5].append('|         |')
+            lines[5].append('│         │')
             lines[6].append('│         │')
             lines[7].append('│       {}{}│'.format(space, rank))
             lines[8].append('└─────────┘')
