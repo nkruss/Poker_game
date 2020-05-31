@@ -804,7 +804,7 @@ class Game():
                 four_recorded = False
                 while(four_recorded == False):
                     try:
-                        four_bought = input(f"{player.name} are you buying a down four for {four_price} y/n?  ")
+                        four_bought = input(f"{player.name} are you buying a up four for {four_price} y/n?  ")
 
                         if four_bought == 'y':
                             #pay for four
