@@ -844,7 +844,7 @@ class Game():
                     #check to make sure corrent number of cards was inputed if
                     ##not create error to get to except statement
                     if len(order_list) != num_cards:
-                         error = cards_to_pass['error']
+                         raise Exception()
 
                     #shift to zero indexed
                     for index_i in range(len(order_list)):
@@ -1022,7 +1022,7 @@ class Game():
                     #if bets not equal to zero create error to get new bet imput
                     if current_bet != 0:
                         print("Can't check. Current bet is not zero")
-                        prin(error)
+                        raise Exception()
                     else:
                         bet = 0
 
