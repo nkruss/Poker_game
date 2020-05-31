@@ -88,12 +88,15 @@ def main():
             else:
                 new_codes = inCode.split(' ')
 
+                #remove invalid card codes from hand
+                invalid_codes = []
                 for code in new_codes:
-                    #remove invalid card codes from hand
                     if validate(code) == False:
-                        new_codes.remove(code)
+                        invalid_codes.append(code)
                         print(f"{code} was an invalid card code")
-                
+                for code in invalid_codes:
+                    new_codes.remove(code)
+
                 current_hand_codes = current_hand_codes + new_codes
                 print(current_hand_codes)
                 decryptor(base_deck, card_offset, inverse, current_hand_codes)
