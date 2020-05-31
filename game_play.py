@@ -686,7 +686,7 @@ class Game():
                     #check to make sure corrent number of cards was inputed if
                     ##not create error to get to except statement
                     if len(cards_to_pass) != num_cards:
-                         error = cards_to_pass['error']
+                         raise Exception()
 
                     #shift to zero indexed
                     for index_i in range(len(cards_to_pass)):
@@ -735,7 +735,7 @@ class Game():
                     #check to make sure corrent number of cards was inputed if
                     ##not create error to get to except statement
                     if len(cards_to_discard) != num_cards:
-                        error = cards_to_discard['error']
+                        raise Exception()
 
                     #shift to zero indexed
                     for index_i in range(len(cards_to_discard)):
@@ -1021,8 +1021,7 @@ class Game():
                 if bet_action == "check":
                     #if bets not equal to zero create error to get new bet imput
                     if current_bet != 0:
-                        print("Can't check. Current bet is not zero")
-                        raise Exception()
+                        raise Exception("Can't check. Current bet is not zero")
                     else:
                         bet = 0
 
