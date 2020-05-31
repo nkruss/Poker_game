@@ -92,7 +92,7 @@ def main():
                     #remove invalid card codes from hand
                     if validate(code) == False:
                         new_codes.remove(code)
-                        print(f"{code} was an invalid card code)
+                        print(f"{code} was an invalid card code")
                 
                 current_hand_codes = current_hand_codes + new_codes
                 print(current_hand_codes)
