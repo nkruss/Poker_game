@@ -83,7 +83,10 @@ def main():
                 codes_to_remove = input(" Enter card code to remove (to enter multiple codes seperate them by ' '):  ")
                 target_codes = codes_to_remove.split(' ')
                 for code in target_codes:
-                    current_hand_codes.remove(code)
+                    try:
+                        current_hand_codes.remove(code)
+                    except:
+                        print(f"{code} was not in your current hand")
                 print(current_hand_codes)
 
             else:
