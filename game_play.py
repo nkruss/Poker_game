@@ -764,18 +764,31 @@ class Game():
                     four_bought = input(f"{player.name} are you buying a down four for {four_price} y/n?  ")
 
                     if four_bought == 'y':
-                        #pay for four
-                        player.chip_stack -= four_price
-                        #increase four_price
-                        four_price += 5
-                        #flip down four
-                        player.hand.cards[-1].type = "up"
-                        #give new down card
-                        card = self.deck.draw_card()
-                        card.type = "down"
-                        player.hand.cards.append(card)
 
-                        print(self)
+                        four_found = False
+
+                        #flip down four
+                        for card in player.hand.cards:
+                            if card.type == "down" and card.rank == "4":
+                                card.type = "up"
+
+                                #pay for four
+                                player.chip_stack -= four_price
+                                #increase four_price
+                                four_price += 5
+
+                                #give new down card
+                                card = self.deck.draw_card()
+                                card.type = "down"
+                                player.hand.cards.append(card)
+
+                                print(self)
+
+                                break
+
+                        if four_found == False:
+                            print("Error processing buying of four. System shows you do not have a four.")
+
 
                     else:
                         four_recorded = True
