@@ -9,9 +9,9 @@ def ascii_version_of_card(*cards, return_string=True, current_player=None, deck_
     keep it as a list so that the dealer can add a hidden card in front of the list
     """
     # we will use this to prints the appropriate icons for each card
-    suits_name = ['Spades', 'Diamonds', 'Hearts', 'Clubs']
+    suits_name = ['Spades', 'Diamonds', 'Hearts', 'Clubs', ' ']
     #suits_symbols = ['♠', '♦', '♥', '♣']
-    suits_symbols = ['S', 'D', 'H', 'C']
+    suits_symbols = ['S', 'D', 'H', 'C', ' ']
 
     # create an empty list of list, each sublist is a line
     lines = [[] for i in range(9)]

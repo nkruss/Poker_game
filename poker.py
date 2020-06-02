@@ -31,8 +31,8 @@ def main():
             print(player)
 
         print("What game should we play? Type 'game over' to end, 'remove player' to remove a player.")
-        gametype = input("Game Options: Baseball, Nicks, Queens, Whores, Texas, Omaha, 0/54, 7_card_screw, Elevator, 1_card_screw, D_and_G:  ")
-        games = ["Baseball", "Queens", "Whores", "Nicks", "Texas", "Omaha", "test", "0/54", "7_card_screw", "Elevator", "1_card_screw", "D_and_G"]
+        gametype = input("Game Options: Baseball, Nicks, Queens, Whores, Texas, Omaha, 0/54, 7_card_screw, Elevator, 1_card_screw, D_and_G, Kings:  ")
+        games = ["Baseball", "Queens", "Whores", "Nicks", "Texas", "Omaha", "test", "0/54", "7_card_screw", "Elevator", "1_card_screw", "D_and_G", "Kings"]
 
         if gametype == "game over":
             break

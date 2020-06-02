@@ -70,6 +70,9 @@ class Game():
         elif gametype == "D_and_G":
             self.rules = "David and Goliath: 7 card stud, if you go high lowest down card is wild, if you go low highest down card is wild, last down card can be bought up"
             self.dealtype = "D_and_G"
+        elif gametype == "Kings":
+            self.rules = "Kings: ___"
+            self.dealtype = "kings"
 
     def __str__(self):
         if self.dealtype == "elevator":
@@ -81,6 +84,11 @@ class Game():
                 for player in self.players:
                     string += f"{player.name}: chip stack is {player.chip_stack}\n"
                 string += self.table.elevator_display()
+        elif self.dealtype == "kings":
+            string = f"\n\n{self.gametype}: {self.rules} \nPot is {self.pot}\n"
+            for player in self.players:
+                string += f"{player.name}: chip stack is {player.chip_stack}\n"
+            string += self.table.kings_display()
         else:
             string = f"\n\n{self.gametype}: {self.rules} \nPot is {self.pot}\nTable:\n{self.table}\n"
             for player in self.players:
@@ -154,6 +162,9 @@ class Game():
             self.d_and_g()
             self.reveal_all_hands()
             self.winner_split()
+
+        elif self.dealtype == "kings":
+            self.kings()
 
     #game deal functions
     def sevencard(self):
@@ -519,8 +530,6 @@ class Game():
                 card = self.deck.draw_card()
                 self.table.add_down_card(card)
 
-            print(len(self.table.cards))
-
             #deal four down cards to each player
             for i in range(3):
                 self.deal_down(display=False)
@@ -675,7 +684,7 @@ class Game():
         #give pot to the winner
         self.players[0].chip_stack += self.pot
 
-    def d_and_g(self): # need to add functionality for having last card up
+    def d_and_g(self):
         "game play for David and Goliath"
         up_value = float(input("How much do you want to charge for the last card to come up?  "))
         while(self.game_over == False):
@@ -716,6 +725,105 @@ class Game():
                 break
 
             self.game_over = True
+
+    def kings(self):
+        "game play for kings deal"
+
+        #get pot cap amount
+        kings_cap = float(input("Enter pot cap amount:  "))
+
+        #create a new player list to store nick order
+        players_original = self.players.copy()
+
+        #have people put in initial antie amounts
+        for player in self.players:
+            player.auntie(5)
+            self.pot += 5
+
+        while(self.game_over == False):
+
+            #deal cards to table
+            for i in range(9):
+                card = self.deck.draw_card()
+                self.table.add_down_card(card)
+
+            self.table.cards[0].type = "up"
+            self.table.cards[1].type = "up"
+
+            #deal four down cards to each player
+            for i in range(2):
+                self.deal_down(display=False)
+            self.deal_down()
+
+            #print player hands
+            string = ''
+            for player in self.players:
+                string += player.coded_str_player(self.deck.deck_code)
+            print(string)
+
+            #loop through players asking who wants to go in
+            players_in = []
+            for player_i in range(len(self.players)):
+                player = self.players[player_i]
+                player_in = input(f"{player.name} are you in y/n?  ")
+                if player_in == "y":
+                    while(1==1):
+                        position = input(f" {player.name} are you in blind, row, col, or double?  ")
+                        if position in ["blind", "row", "col", "double"]:
+                            break
+                        else:
+                            print("Error processing where you wanted to go in")
+                    players_in.append((player, position))
+
+            #display table with all cards flipped
+            for card in self.table.cards:
+                card.type = "up"
+            print(self)
+            self.reveal_all_hands()
+
+            #get payout amount
+            if self.pot > kings_cap:
+                payout = kings_cap
+            else:
+                payout = self.pot
+
+            num_losers = 0
+            for player_tuple in players_in:
+                print(f"{player_tuple[0].name} you went in the {player_tuple[1]}")
+                result = input(f" {player_tuple[0].name} did you win or lose (w/l)?  ")
+
+                #double or nothing condition
+                if result == "w":
+                    player_tuple[0].chip_stack +=  payout
+                    self.pot -= payout
+                elif result == "l" and player_tuple[1] == "double":
+                    player_tuple[0].chip_stack -=  (2 * payout)
+                    self.pot += (2 * payout)
+                    num_losers += 1
+                else:
+                    player_tuple[0].chip_stack -= payout
+                    self.pot += payout
+                    num_losers += 1
+
+            #end game condition
+            if num_losers == 0 and len(players_in) == 1:
+                player_tuple[0].chip_stack +=  self.pot
+                self.game_over = True
+
+            #reset players hands, deck, and table hand, rotate deal
+            else:
+                self.deck = Deck()
+                self.table.cards = []
+                for player in self.players:
+                    player.hand.reset()
+
+                #rotate dealer
+                self.dealer_i += 1
+                #loop the dealer
+                if self.dealer_i > len(self.players)-1:
+                    self.dealer_i = 0
+                self.players = players_original[self.dealer_i:] + players_original[:self.dealer_i]
+
 
     #helpfull functions
     def passing_cards(self, pass_direction, num_cards):

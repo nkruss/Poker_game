@@ -52,7 +52,7 @@ class Hand():
         """Function for gametype elivator. Returns a string display of the table
         state for elivator.
         """
-        
+
         string = "Table: "
         string += "\n" + ascii_version_of_hand(self.cards[:4])
         if self.cards[4].type == "down":
@@ -60,6 +60,27 @@ class Hand():
         else:
             string += "\n" + ascii_version_of_card(self.cards[4])
         string += "\n" + ascii_version_of_hand(self.cards[5:])
+        return string
+
+    def kings_display(self):
+        """Function for gametype kings. Returns a string display of the table
+        state for kings courners.
+        """
+        blank_card = Card(" ", " ", 0)
+
+        string = "Table: "
+
+        line_1 = [blank_card, self.cards[0], blank_card]
+        line_3 = [blank_card, self.cards[4], blank_card]
+        blind = self.cards[5:9]
+
+        string += "\n" + ascii_version_of_hand(line_1)
+        string += "\n" + ascii_version_of_hand(self.cards[1:4])
+        string += "\n" + ascii_version_of_hand(line_3)
+
+        string += "\n" + "Blind: "
+        string += "\n" + ascii_version_of_hand(blind) + "\n"
+
         return string
 
     def coded_str_hand(self, player, deck_code):
