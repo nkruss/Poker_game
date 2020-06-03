@@ -790,7 +790,7 @@ class Game():
             num_losers = 0
             for player_tuple in players_in:
                 print(f"{player_tuple[0].name} you went in the {player_tuple[1]}")
-                result = input(f" {player_tuple[0].name} did you win or lose (w/l)?  ")
+                result = input(f" {player_tuple[0].name} did you win, lose, or tie (w/l/t)?  ")
 
                 #double or nothing condition
                 if result == "w":
@@ -799,6 +799,8 @@ class Game():
                 elif result == "l" and player_tuple[1] == "double":
                     player_tuple[0].chip_stack -=  (2 * payout)
                     self.pot += (2 * payout)
+                    num_losers += 1
+                elif result == "t":
                     num_losers += 1
                 else:
                     player_tuple[0].chip_stack -= payout
@@ -1049,11 +1051,14 @@ class Game():
         winner_recorded = False
         while(winner_recorded == False):
             try:
-                winner = input("Who is the winner? (Enter player name)   ")
+                winners = input("Who is the winner? (Enter player name [if tie seperate names by ','])   ")
+
+                winning_players = winners.split(",")
+                payout = self.pot / len(winning_players)
 
                 for player in self.players:
-                    if player.name == winner:
-                        player.chip_stack += self.pot
+                    if player.name in winning_players:
+                        player.chip_stack += payout
                         winner_recorded = True
             except:
                 print("error processing winner try again")
