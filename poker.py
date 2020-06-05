@@ -30,9 +30,9 @@ def main():
             player.hand.reset()
             print(player)
 
-        print("What game should we play? Type 'game over' to end, 'remove player' to remove a player.")
-        gametype = input("Game Options: Baseball, Nicks, Queens, Whores, Texas, Omaha, 0/54, 7_card_screw, Elevator, 1_card_screw, D_and_G, Kings:  ")
-        games = ["Baseball", "Queens", "Whores", "Nicks", "Texas", "Omaha", "test", "0/54", "7_card_screw", "Elevator", "1_card_screw", "D_and_G", "Kings"]
+        print("What game should we play? Type 'game over' to end, 'remove player' to remove a player, 'add player' to add a player.")
+        gametype = input("Game Options: Baseball, Nicks, Queens, Whores, Texas, Omaha, 0/54, 7_card_screw, Elevator, 1_card_screw, D_and_G, Kings, 7/27:  ")
+        games = ["Baseball", "Queens", "Whores", "Nicks", "Texas", "Omaha", "test", "0/54", "7_card_screw", "Elevator", "1_card_screw", "D_and_G", "Kings", "7/27"]
 
         if gametype == "game over":
             break

@@ -15,7 +15,7 @@ class Game():
         self.players = players[dealer_i:] + players[:dealer_i]
 
         cheap_games = ["Nicks"]
-        norm_games = ["Baseball", "Queens", "Whores", "Texas", "Omaha", "0/54", "7_card_screw", "Elevator", "D_and_G"]
+        norm_games = ["Baseball", "Queens", "Whores", "Texas", "Omaha", "0/54", "7_card_screw", "Elevator", "D_and_G", "7/27"]
 
         if gametype in norm_games:
             for player in players:
@@ -73,6 +73,9 @@ class Game():
         elif gametype == "Kings":
             self.rules = "Kings: ___"
             self.dealtype = "kings"
+        elif gametype == "7/27":
+            self.rules = "7/27: Closest to 7 and 27 from below (aces=1 or 11, face-cards=.5), can pass getting aditional card 3 times before hand is locked"
+            self.dealtype= "7/27"
 
     def __str__(self):
         if self.dealtype == "elevator":
@@ -165,6 +168,14 @@ class Game():
 
         elif self.dealtype == "kings":
             self.kings()
+
+        elif self.dealtype == "7/27":
+            self.seven_twentyseven()
+            print("people declare low or high")
+            input("click enter once people have determined if they're going low or high")
+            self.reveal_all_hands()
+            self.winner_split()
+
 
     #game deal functions
     def sevencard(self):
@@ -782,33 +793,31 @@ class Game():
             self.reveal_all_hands()
 
             #get payout amount
-            if self.pot > kings_cap:
-                payout = kings_cap
-            else:
-                payout = self.pot
+            payout = self.pot
 
             num_losers = 0
             for player_tuple in players_in:
                 print(f"{player_tuple[0].name} you went in the {player_tuple[1]}")
                 result = input(f" {player_tuple[0].name} did you win, lose, or tie (w/l/t)?  ")
 
-                #double or nothing condition
                 if result == "w":
                     player_tuple[0].chip_stack +=  payout
                     self.pot -= payout
+                #double or nothing condition
                 elif result == "l" and player_tuple[1] == "double":
-                    player_tuple[0].chip_stack -=  (2 * payout)
-                    self.pot += (2 * payout)
+                    player_tuple[0].chip_stack -=  (2 * min(payout, kings_cap))
+                    self.pot += (2 * min(payout, kings_cap))
                     num_losers += 1
                 elif result == "t":
                     num_losers += 1
                 else:
-                    player_tuple[0].chip_stack -= payout
-                    self.pot += payout
+                    player_tuple[0].chip_stack -= min(payout, kings_cap)
+                    self.pot += min(payout, kings_cap)
                     num_losers += 1
 
             #end game condition
             if num_losers == 0 and len(players_in) == 1:
+                #
                 player_tuple[0].chip_stack +=  self.pot
                 self.game_over = True
 
@@ -826,6 +835,66 @@ class Game():
                     self.dealer_i = 0
                 self.players = players_original[self.dealer_i:] + players_original[:self.dealer_i]
 
+    def seven_twentyseven(self):
+        "game play for 7 card stud"
+        while(self.game_over == False):
+            eligible_players = self.players.copy()
+
+            #deal two down cards to each player
+            self.deal_down(display=False)
+            self.deal_down(display=False)
+
+            for player in self.players:
+                player.legs = 0
+                up = int(input(f"{player.name} which card do you want flipped (1 or 2)?  "))
+                up -= 1
+                player.hand.cards[up].type = "up"
+
+            lowest_num_legs = 0
+
+            print(self)
+
+            #betting for the round
+            self.current_bet = 0
+            self.betting(self.players)
+            if self.game_over == True:
+                break
+
+            while(1==1):
+
+                for player in eligible_players:
+                    # if player in eligible_players:
+                    hit = input(f"{player.name} (you have {3 - player.legs} passes left) do you want another card y/n?  ")
+                    if hit == "y":
+                        card = self.deck.draw_card()
+                        player.hand.add_up_card(card)
+                    else:
+                        player.legs += 1
+
+                    #lock players hand
+                    if player.legs == 3:
+                        eligible_players.remove(player)
+
+                print(self)
+
+                #betting for the round
+                self.current_bet = 0
+                self.betting(self.players)
+                if self.game_over == True:
+                    break
+
+                #remove player if they folded
+                for player in eligible_players:
+                    if player not in self.players:
+                        print("removing", player.name)
+                        eligible_players.remove(player)
+
+                #condition to end game
+                if len(eligible_players) == 0:
+                    print("breaking")
+                    break
+
+            self.game_over = True
 
     #helpfull functions
     def passing_cards(self, pass_direction, num_cards):
@@ -1051,7 +1120,7 @@ class Game():
         winner_recorded = False
         while(winner_recorded == False):
             try:
-                winners = input("Who is the winner? (Enter player name [if tie seperate names by ','])   ")
+                winners = input("Who is the winner? (Enter player name, if tie seperate names by ',')   ")
 
                 winning_players = winners.split(",")
                 payout = self.pot / len(winning_players)
@@ -1071,7 +1140,7 @@ class Game():
         winner_recorded = False
         while(winner_recorded == False):
             try:
-                print("special input ")
+                print("special inputs: if only high winer enter 'winner:', if multiple high winners enter 'winner_1,winner_2:winner_3'")
                 winners = input("Who is the winner? (Enter winners names in the form high_winners:low_winners)  ")
                 #for only one person winning enter them as "player_name:"
                 high_low = winners.split(":")
