@@ -1,5 +1,19 @@
 import random
 
+#code to add different colors to cards
+class color:
+   PURPLE = '\033[95m'
+   CYAN = '\033[96m'
+   DARKCYAN = '\033[36m'
+   BLUE = '\033[94m'
+   GREEN = '\033[92m'
+   YELLOW = '\033[93m'
+   RED = '\033[91m'
+   BLACK = '\x1b[30m'
+   BOLD = '\033[1m'
+   UNDERLINE = '\033[4m'
+   END = '\033[0m'
+
 def ascii_version_of_card(*cards, return_string=True, current_player=None, deck_code=None):
     #got off internet
     """
@@ -10,7 +24,7 @@ def ascii_version_of_card(*cards, return_string=True, current_player=None, deck_
     """
     # we will use this to prints the appropriate icons for each card
     suits_name = ['Spades', 'Diamonds', 'Hearts', 'Clubs', ' ']
-    #suits_symbols = ['♠', '♦', '♥', '♣']
+    #suits_symbols = ['♠', '♦', '♥', '♣', ' ']
     suits_symbols = ['S', 'D', 'H', 'C', ' ']
 
     # create an empty list of list, each sublist is a line
@@ -28,29 +42,57 @@ def ascii_version_of_card(*cards, return_string=True, current_player=None, deck_
         suit = suits_name.index(card.suit)
         suit = suits_symbols[suit]
 
+        # print(color.BOLD + 'Hello World !' + color.END)
+
         if current_player != None:
-            card = cards[0]
-            # add the individual card on a line by line basis
-            lines[0].append('┌─────────┐')
-            lines[1].append('│{}{}       │'.format(rank, space))  # use two {} one for char, one for space or char
-            lines[2].append('│         │')
-            lines[3].append('│         │')
-            lines[4].append('│    {}    │'.format(suit))
-            lines[5].append(f"│  ({card.encode(current_player, deck_code)})  │")
-            lines[6].append('│         │')
-            lines[7].append('│       {}{}│'.format(space, rank))
-            lines[8].append('└─────────┘')
+            if suit == 'H' or suit == 'D':
+                card = cards[0]
+                # add the individual card on a line by line basis
+                lines[0].append('┌─────────┐')
+                lines[1].append('│{}{}       │'.format(color.RED + rank + color.END, space))  # use two {} one for char, one for space or char
+                lines[2].append('│         │')
+                lines[3].append('│         │')
+                lines[4].append('│    {}    │'.format(color.RED + suit + color.END))
+                lines[5].append(f"│  ({card.encode(current_player, deck_code)})  │")
+                lines[6].append('│         │')
+                lines[7].append('│       {}{}│'.format(space, color.RED + rank + color.END))
+                lines[8].append('└─────────┘')
+            else:
+                card = cards[0]
+                # add the individual card on a line by line basis
+                lines[0].append('┌─────────┐')
+                lines[1].append('│{}{}       │'.format(color.CAYN + rank + color.END, space))  # use two {} one for char, one for space or char
+                lines[2].append('│         │')
+                lines[3].append('│         │')
+                lines[4].append('│    {}    │'.format(color.CAYN + suit + color.END))
+                lines[5].append(f"│  ({card.encode(current_player, deck_code)})  │")
+                lines[6].append('│         │')
+                lines[7].append('│       {}{}│'.format(space, color.CYAN + rank + color.END))
+                lines[8].append('└─────────┘')
+
         else:
             # add the individual card on a line by line basis
-            lines[0].append('┌─────────┐')
-            lines[1].append('│{}{}       │'.format(rank, space))  # use two {} one for char, one for space or char
-            lines[2].append('│         │')
-            lines[3].append('│         │')
-            lines[4].append('│    {}    │'.format(suit))
-            lines[5].append('│         │')
-            lines[6].append('│         │')
-            lines[7].append('│       {}{}│'.format(space, rank))
-            lines[8].append('└─────────┘')
+            if suit == 'H' or suit == 'D':
+                lines[0].append('┌─────────┐')
+                lines[1].append('│{}{}       │'.format(color.RED + rank + color.END, space))  # use two {} one for char, one for space or char
+                lines[2].append('│         │')
+                lines[3].append('│         │')
+                lines[4].append('│    {}    │'.format(color.RED + suit + color.END))
+                lines[5].append('│         │')
+                lines[6].append('│         │')
+                lines[7].append('│       {}{}│'.format(space, color.RED + rank + color.END))
+                lines[8].append('└─────────┘')
+
+            else:
+                lines[0].append('┌─────────┐')
+                lines[1].append('│{}{}       │'.format(color.CYAN + rank + color.END, space))  # use two {} one for char, one for space or char
+                lines[2].append('│         │')
+                lines[3].append('│         │')
+                lines[4].append('│    {}    │'.format(color.CYAN + suit + color.END))
+                lines[5].append('│         │')
+                lines[6].append('│         │')
+                lines[7].append('│       {}{}│'.format(space, color.CYAN + rank + color.END))
+                lines[8].append('└─────────┘')
 
 
     result = []
