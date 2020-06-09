@@ -171,8 +171,6 @@ class Game():
 
         elif self.dealtype == "7/27":
             self.seven_twentyseven()
-            print("people declare low or high")
-            input("click enter once people have determined if they're going low or high")
             self.reveal_all_hands()
             self.winner_split()
 
@@ -842,7 +840,7 @@ class Game():
 
             #deal two down cards to each player
             self.deal_down(display=False)
-            self.deal_down(display=False)
+            self.deal_down()
 
             for player in self.players:
                 player.legs = 0
@@ -860,7 +858,17 @@ class Game():
             if self.game_over == True:
                 break
 
+            #remove player if they folded
+            players_to_remove = []
+            for player in eligible_players:
+                if player not in self.players:
+                    print("removing", player.name)
+                    players_to_remove.append(player)
+            for player in players_to_remove:
+                eligible_players.remove(player)
+
             while(1==1):
+                players_to_remove = []
 
                 for player in eligible_players:
                     # if player in eligible_players:
@@ -871,9 +879,9 @@ class Game():
                     else:
                         player.legs += 1
 
-                    #lock players hand
-                    if player.legs == 3:
-                        eligible_players.remove(player)
+                        #lock players hand
+                        if player.legs == 3:
+                            players_to_remove.append(player)
 
                 print(self)
 
@@ -887,7 +895,12 @@ class Game():
                 for player in eligible_players:
                     if player not in self.players:
                         print("removing", player.name)
-                        eligible_players.remove(player)
+                        players_to_remove.append(player)
+
+                #actual removal of players
+                for player in players_to_remove:
+                    print("removing", player.name)
+                    eligible_players.remove(player)
 
                 #condition to end game
                 if len(eligible_players) == 0:

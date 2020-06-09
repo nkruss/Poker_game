@@ -57,14 +57,15 @@ def main():
         remainder = (remainder * temp_inverse) % 46133
 
     while(1):
-        print("Please type in the codes of the cards you want decoded. Until you start a new had each new code will be added to the current hand")
+        print("\nPlease type in the codes of the cards you want decoded. Until you start a new had each new code will be added to the current hand")
         print(" Type 'next' to move to next hand inputting cards")
         print(" Type 'remove' to remove codes from current hand")
+        print(" Type 'reorder' to reorder the cards in your current hand")
         print(" Type 'quit' to quit")
 
         current_hand_codes = []
         while(1):
-            inCode = input("Enter card code (to enter multiple codes seperate them by ' '):  ")
+            inCode = input("\nEnter card code (to enter multiple codes seperate them by ' '):  ")
 
             if inCode == 'next':
                 for i in range(10):
@@ -84,6 +85,33 @@ def main():
                     except:
                         print(f"{code} was not in your current hand")
                 print(current_hand_codes)
+
+            elif inCode == 'reorder':
+                try:
+                    print(" Example reorder: 1 5 3 2 4")
+                    order_list = input(f" Enter index order you want your hand (seperate card index by ' ')?  ")
+
+                    order_list = order_list.split(' ')
+
+                    #check to make sure corrent number of cards was inputed if
+                    ##not create error to get to except statement
+                    if len(order_list) != len(current_hand_codes):
+                         raise Exception()
+
+                    #shift to zero indexed
+                    for index_i in range(len(order_list)):
+                        order_list[index_i] = int(order_list[index_i]) - 1
+
+                    reordered_hand = []
+                    for index in order_list:
+                        reordered_hand.append(current_hand_codes[index])
+                    current_hand_codes = reordered_hand
+
+                    print(current_hand_codes)
+                    decryptor(base_deck, card_offset, inverse, current_hand_codes)
+
+                except:
+                    print("Error processing inputed reorder")
 
             else:
                 new_codes = inCode.split(' ')
