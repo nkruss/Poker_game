@@ -32,10 +32,10 @@ class Player():
     def __str__(self):
         return f"{self.name}: chip stack is {self.chip_stack}, hand is \n{str(self.hand)}\n"
 
-    def reveal_hand(self):
+    def reveal_hand(self, card_color: bool):
         for card in self.hand.cards:
             card.type = "up"
-        print(f"{self.name}\n{self.hand}")
+        print(f"{self.name}\n{self.hand.display_hand(card_color)}")
 
     def reveal_card(self, index):
         """

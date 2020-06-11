@@ -1115,7 +1115,7 @@ class Game():
             return None
         else:
             for player in self.players:
-                player.reveal_hand()
+                player.reveal_hand(self.card_color)
 
     def all_fold(self):
         everyone_folded = False

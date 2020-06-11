@@ -38,6 +38,14 @@ class Hand():
             print(card)
         print()
 
+    def display_hand(self, card_color):
+        """Function to get string rep of hand without card codes"""
+        if len(self.cards) == 0:
+            return "empty"
+
+        string = ascii_version_of_hand(self.cards, card_color=card_color)
+        return string
+
     def reoreder_hand(self, order_list):
         """
         order_list is a list of the indexes of the cards to reorder
