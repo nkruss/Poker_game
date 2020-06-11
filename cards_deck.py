@@ -204,7 +204,7 @@ def ascii_version_of_hand(cards, current_player=None, deck_code=None, card_color
         if card.type == "up":
             current_line = ascii_version_of_card(card, return_string=False, current_player=current_player, deck_code=deck_code, card_color=card_color)
         else:
-            current_line = ascii_version_of_hidden_card(card, return_string=False, current_player=current_player, deck_code=deck_code, card_color=card_color)
+            current_line = ascii_version_of_hidden_card(card, return_string=False, current_player=current_player, deck_code=deck_code)
 
         for index, line in enumerate(current_line):
             lines[index].append(line)

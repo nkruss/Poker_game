@@ -6,11 +6,12 @@ from cards_deck import *
 class Game():
     #finish working on 1 card pass the trash
 
-    def __init__(self, gametype: str, players: list, dealer_i: int, auntie: int):
+    def __init__(self, gametype: str, players: list, dealer_i: int, auntie: int, card_color: bool):
         #need to implement 7 card screw?, 0-54, elivator?, kings?
 
         self.pot = 0
         self.dealer_i = dealer_i
+        self.card_color = card_color
 
         self.players = players[dealer_i:] + players[:dealer_i]
 
@@ -81,22 +82,22 @@ class Game():
         if self.dealtype == "elevator":
             if self.game_over:
                 string = f"\n\n{self.gametype}: {self.rules} \nPot is {self.pot}\n"
-                string += self.table.elevator_display()
+                string += self.table.elevator_display(self.card_color)
             else:
                 string = f"\n\n{self.gametype}: {self.rules} \nPot is {self.pot}\n"
                 for player in self.players:
                     string += f"{player.name}: chip stack is {player.chip_stack}\n"
-                string += self.table.elevator_display()
+                string += self.table.elevator_display(self.card_color)
         elif self.dealtype == "kings":
             string = f"\n\n{self.gametype}: {self.rules} \nPot is {self.pot}\n"
             for player in self.players:
                 string += f"{player.name}: chip stack is {player.chip_stack}\n"
-            string += self.table.kings_display()
+            string += self.table.kings_display(self.card_color)
         else:
             string = f"\n\n{self.gametype}: {self.rules} \nPot is {self.pot}\nTable:\n{self.table}\n"
             for player in self.players:
                 # string += str(player)
-                string += player.coded_str_player(self.deck.deck_code)
+                string += player.coded_str_player(self.deck.deck_code, self.card_color)
 
 
         #print to file for dealer
@@ -547,7 +548,7 @@ class Game():
             #print player hands
             string = ''
             for player in self.players:
-                string += player.coded_str_player(self.deck.deck_code)
+                string += player.coded_str_player(self.deck.deck_code, self.card_color)
             print(string)
 
             #betting pre card flip
@@ -767,7 +768,7 @@ class Game():
             #print player hands
             string = ''
             for player in self.players:
-                string += player.coded_str_player(self.deck.deck_code)
+                string += player.coded_str_player(self.deck.deck_code, self.card_color)
             print(string)
 
             #loop through players asking who wants to go in

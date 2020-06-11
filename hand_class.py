@@ -48,21 +48,21 @@ class Hand():
             ordered.append(self.cards[index])
         self.cards = ordered
 
-    def elevator_display(self):
+    def elevator_display(self, card_color: bool):
         """Function for gametype elivator. Returns a string display of the table
         state for elivator.
         """
 
         string = "Table: "
-        string += "\n" + ascii_version_of_hand(self.cards[:4])
+        string += "\n" + ascii_version_of_hand(self.cards[:4], card_color=card_color)
         if self.cards[4].type == "down":
             string += "\n" + ascii_version_of_hidden_card(self.cards[4])
         else:
-            string += "\n" + ascii_version_of_card(self.cards[4])
-        string += "\n" + ascii_version_of_hand(self.cards[5:])
+            string += "\n" + ascii_version_of_card(self.cards[4], card_color=card_color)
+        string += "\n" + ascii_version_of_hand(self.cards[5:], card_color=card_color)
         return string
 
-    def kings_display(self):
+    def kings_display(self, card_color: bool):
         """Function for gametype kings. Returns a string display of the table
         state for kings courners.
         """
@@ -74,18 +74,18 @@ class Hand():
         line_3 = [blank_card, self.cards[4], blank_card]
         blind = self.cards[5:9]
 
-        string += "\n" + ascii_version_of_hand(line_1)
-        string += "\n" + ascii_version_of_hand(self.cards[1:4])
-        string += "\n" + ascii_version_of_hand(line_3)
+        string += "\n" + ascii_version_of_hand(line_1, card_color=card_color)
+        string += "\n" + ascii_version_of_hand(self.cards[1:4], card_color=card_color)
+        string += "\n" + ascii_version_of_hand(line_3, card_color=card_color)
 
         string += "\n" + "Blind: "
-        string += "\n" + ascii_version_of_hand(blind) + "\n"
+        string += "\n" + ascii_version_of_hand(blind, card_color=card_color) + "\n"
 
         return string
 
-    def coded_str_hand(self, player, deck_code):
+    def coded_str_hand(self, player, deck_code, card_color):
         if len(self.cards) == 0:
             return "empty"
 
-        string = ascii_version_of_hand(self.cards, current_player=player, deck_code=deck_code)
+        string = ascii_version_of_hand(self.cards, current_player=player, deck_code=deck_code, card_color=card_color)
         return string

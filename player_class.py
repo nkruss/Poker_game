@@ -67,5 +67,5 @@ class Player():
         print(hand_string, file=poker_hands)
         return None
 
-    def coded_str_player(self, deck_code):
-        return f"{self.name}: chip stack is {self.chip_stack}, hand is \n{self.hand.coded_str_hand(self, deck_code)}\n"
+    def coded_str_player(self, deck_code, card_color):
+        return f"{self.name}: chip stack is {self.chip_stack}, hand is \n{self.hand.coded_str_hand(self, deck_code, card_color)}\n"

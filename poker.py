@@ -8,6 +8,12 @@ def main():
     starting_chip_stack = int(input("Enter starting chip stack amount: "))
     auntie = int(input("Enter auntie amount for games: "))
 
+    card_color = input("Do you want to use colored cards? y/n:  ")
+    if card_color == "y":
+        card_color = True
+    else:
+        card_color = False
+
     #set up players
     players = []
     player_info = open('player_info.txt', 'w')
@@ -52,7 +58,7 @@ def main():
             pass
 
         else:
-            game = Game(gametype, players, dealer_i, auntie)
+            game = Game(gametype, players, dealer_i, auntie, card_color)
             game.play()
 
             dealer_i += 1
