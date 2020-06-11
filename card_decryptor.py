@@ -1,14 +1,14 @@
 from cards_deck import *
 letters = '0123456789abcdefghijkLmnopqrstuvwxyz'
 
-def decryptor(base_deck, card_offset, inverse, codes):
+def decryptor(base_deck, card_offset, inverse, codes, card_color):
     cards = []
     for code in codes:
         charNums = [letters.find(c) for c in code]
         card_code = sum([(n*(36**(2-i))) for i, n in enumerate(charNums)])
         card_code = ((card_code * inverse - card_offset) % 46133) % 52
         cards.append(base_deck.cards[card_code])
-    print(ascii_version_of_hand(cards))
+    print(ascii_version_of_hand(cards, card_color=card_color))
 
 def validate(code):
     valid = True
@@ -44,6 +44,12 @@ def main():
                 break
         except:
             print("Invalid card_multiplier")
+
+    card_color = input("Do you want your hand to use colored cards? y/n:  ")
+    if card_color == "y":
+        card_color = True
+    else:
+        card_color = False
 
     base_deck = Deck()
 
@@ -108,7 +114,7 @@ def main():
                     current_hand_codes = reordered_hand
 
                     print(current_hand_codes)
-                    decryptor(base_deck, card_offset, inverse, current_hand_codes)
+                    decryptor(base_deck, card_offset, inverse, current_hand_codes, card_color)
 
                 except:
                     print("Error processing inputed reorder")
@@ -127,6 +133,6 @@ def main():
 
                 current_hand_codes = current_hand_codes + new_codes
                 print(current_hand_codes)
-                decryptor(base_deck, card_offset, inverse, current_hand_codes)
+                decryptor(base_deck, card_offset, inverse, current_hand_codes, card_color)
 
 main()

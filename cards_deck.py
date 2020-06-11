@@ -14,7 +14,7 @@ class color:
    UNDERLINE = '\033[4m'
    END = '\033[0m'
 
-def ascii_version_of_card(*cards, return_string=True, current_player=None, deck_code=None):
+def ascii_version_of_card(*cards, return_string=True, current_player=None, deck_code=None, card_color=True):
     #got off internet
     """
     Instead of a boring text version of the card we render an ASCII image of the card.
@@ -43,58 +43,111 @@ def ascii_version_of_card(*cards, return_string=True, current_player=None, deck_
         suit = suits_symbols[suit_i]
         suit_sym = suits_actual_symbols[suit_i]
 
-        # print(color.BOLD + 'Hello World !' + color.END)
+        ## CODE FOR COLORED CARDS
+        if card_color == True:
+            if current_player != None:
+                if suit == 'H' or suit == 'D':
+                    card = cards[0]
+                    # add the individual card on a line by line basis
+                    lines[0].append('┌─────────┐')
+                    lines[1].append('│{}{}      {}│'.format(color.RED + rank + color.END, space, color.RED + suit_sym + color.END))  # use two {} one for char, one for space or char
+                    lines[2].append('│         │')
+                    lines[3].append('│         │')
+                    lines[4].append('│    {}    │'.format(color.RED + suit + color.END))
+                    lines[5].append(f"│  ({card.encode(current_player, deck_code)})  │")
+                    lines[6].append('│         │')
+                    lines[7].append('│{}      {}{}│'.format(color.RED + suit_sym + color.END, space, color.RED + rank + color.END))
+                    lines[8].append('└─────────┘')
 
-        if current_player != None:
-            if suit == 'H' or suit == 'D':
-                card = cards[0]
-                # add the individual card on a line by line basis
-                lines[0].append('┌─────────┐')
-                lines[1].append('│{}{}      {}│'.format(color.RED + rank + color.END, space, color.RED + suit_sym + color.END))  # use two {} one for char, one for space or char
-                lines[2].append('│         │')
-                lines[3].append('│         │')
-                lines[4].append('│    {}    │'.format(color.RED + suit + color.END))
-                lines[5].append(f"│  ({card.encode(current_player, deck_code)})  │")
-                lines[6].append('│         │')
-                lines[7].append('│{}      {}{}│'.format(color.RED + suit_sym + color.END, space, color.RED + rank + color.END))
-                lines[8].append('└─────────┘')
+                else:
+                    card = cards[0]
+                    # add the individual card on a line by line basis
+                    lines[0].append('┌─────────┐')
+                    lines[1].append('│{}{}      {}│'.format(color.CYAN + rank + color.END, space, color.CYAN + suit_sym + color.END))  # use two {} one for char, one for space or char
+                    lines[2].append('│         │')
+                    lines[3].append('│         │')
+                    lines[4].append('│    {}    │'.format(color.CYAN + suit + color.END))
+                    lines[5].append(f"│  ({card.encode(current_player, deck_code)})  │")
+                    lines[6].append('│         │')
+                    lines[7].append('│{}      {}{}│'.format(color.CYAN + suit_sym + color.END, space, color.CYAN + rank + color.END))
+                    lines[8].append('└─────────┘')
 
             else:
-                card = cards[0]
                 # add the individual card on a line by line basis
-                lines[0].append('┌─────────┐')
-                lines[1].append('│{}{}      {}│'.format(color.CYAN + rank + color.END, space, color.CYAN + suit_sym + color.END))  # use two {} one for char, one for space or char
-                lines[2].append('│         │')
-                lines[3].append('│         │')
-                lines[4].append('│    {}    │'.format(color.CYAN + suit + color.END))
-                lines[5].append(f"│  ({card.encode(current_player, deck_code)})  │")
-                lines[6].append('│         │')
-                lines[7].append('│{}      {}{}│'.format(color.CYAN + suit_sym + color.END, space, color.CYAN + rank + color.END))
-                lines[8].append('└─────────┘')
+                if suit == 'H' or suit == 'D':
+                    lines[0].append('┌─────────┐')
+                    lines[1].append('│{}{}      {}│'.format(color.RED + rank + color.END, space, color.RED + suit_sym + color.END))
+                    lines[2].append('│         │')
+                    lines[3].append('│         │')
+                    lines[4].append('│    {}    │'.format(color.RED + suit + color.END))
+                    lines[5].append('│         │')
+                    lines[6].append('│         │')
+                    lines[7].append('│{}      {}{}│'.format(color.RED + suit_sym + color.END, space, color.RED + rank + color.END))
+                    lines[8].append('└─────────┘')
 
+                else:
+                    lines[0].append('┌─────────┐')
+                    lines[1].append('│{}{}      {}│'.format(color.CYAN + rank + color.END, space, color.CYAN + suit_sym + color.END))
+                    lines[2].append('│         │')
+                    lines[3].append('│         │')
+                    lines[4].append('│    {}    │'.format(color.CYAN + suit + color.END))
+                    lines[5].append('│         │')
+                    lines[6].append('│         │')
+                    lines[7].append('│{}      {}{}│'.format(color.CYAN + suit_sym + color.END, space, color.CYAN + rank + color.END))
+                    lines[8].append('└─────────┘')
+
+        ## CODE FOR COLORLESS CARDS
         else:
-            # add the individual card on a line by line basis
-            if suit == 'H' or suit == 'D':
-                lines[0].append('┌─────────┐')
-                lines[1].append('│{}{}      {}│'.format(color.RED + rank + color.END, space, color.RED + suit_sym + color.END))
-                lines[2].append('│         │')
-                lines[3].append('│         │')
-                lines[4].append('│    {}    │'.format(color.RED + suit + color.END))
-                lines[5].append('│         │')
-                lines[6].append('│         │')
-                lines[7].append('│{}      {}{}│'.format(color.RED + suit_sym + color.END, space, color.RED + rank + color.END))
-                lines[8].append('└─────────┘')
+            if current_player != None:
+                if suit == 'H' or suit == 'D':
+                    card = cards[0]
+                    # add the individual card on a line by line basis
+                    lines[0].append('┌─────────┐')
+                    lines[1].append('│{}{}      {}│'.format(rank, space, suit_sym))  # use two {} one for char, one for space or char
+                    lines[2].append('│         │')
+                    lines[3].append('│         │')
+                    lines[4].append('│    {}    │'.format(suit))
+                    lines[5].append(f"│  ({card.encode(current_player, deck_code)})  │")
+                    lines[6].append('│         │')
+                    lines[7].append('│{}      {}{}│'.format(suit_sym, space, rank))
+                    lines[8].append('└─────────┘')
+
+                else:
+                    card = cards[0]
+                    # add the individual card on a line by line basis
+                    lines[0].append('┌─────────┐')
+                    lines[1].append('│{}{}      {}│'.format(rank, space, suit_sym))  # use two {} one for char, one for space or char
+                    lines[2].append('│         │')
+                    lines[3].append('│         │')
+                    lines[4].append('│    {}    │'.format(suit))
+                    lines[5].append(f"│  ({card.encode(current_player, deck_code)})  │")
+                    lines[6].append('│         │')
+                    lines[7].append('│{}      {}{}│'.format(suit_sym, space, rank))
+                    lines[8].append('└─────────┘')
 
             else:
-                lines[0].append('┌─────────┐')
-                lines[1].append('│{}{}      {}│'.format(color.CYAN + rank + color.END, space, color.CYAN + suit_sym + color.END))
-                lines[2].append('│         │')
-                lines[3].append('│         │')
-                lines[4].append('│    {}    │'.format(color.CYAN + suit + color.END))
-                lines[5].append('│         │')
-                lines[6].append('│         │')
-                lines[7].append('│{}      {}{}│'.format(color.CYAN + suit_sym + color.END, space, color.CYAN + rank + color.END))
-                lines[8].append('└─────────┘')
+                # add the individual card on a line by line basis
+                if suit == 'H' or suit == 'D':
+                    lines[0].append('┌─────────┐')
+                    lines[1].append('│{}{}      {}│'.format(rank, space, suit_sym))
+                    lines[2].append('│         │')
+                    lines[3].append('│         │')
+                    lines[4].append('│    {}    │'.format(suit))
+                    lines[5].append('│         │')
+                    lines[6].append('│         │')
+                    lines[7].append('│{}      {}{}│'.format(suit_sym, space, rank))
+                    lines[8].append('└─────────┘')
+
+                else:
+                    lines[0].append('┌─────────┐')
+                    lines[1].append('│{}{}      {}│'.format(rank, space, suit_sym))
+                    lines[2].append('│         │')
+                    lines[3].append('│         │')
+                    lines[4].append('│    {}    │'.format(suit))
+                    lines[5].append('│         │')
+                    lines[6].append('│         │')
+                    lines[7].append('│{}      {}{}│'.format(suit_sym, space, rank))
+                    lines[8].append('└─────────┘')
 
 
     result = []
@@ -138,7 +191,7 @@ def ascii_version_of_hidden_card(*cards, return_string=True, current_player=None
     else:
         return lines
 
-def ascii_version_of_hand(cards, current_player=None, deck_code=None):
+def ascii_version_of_hand(cards, current_player=None, deck_code=None, card_color=True):
     """
     Essentially the dealers method of print ascii cards. This method hides the first card, shows it flipped over
     :param cards: A list of card objects, the first will be hidden
@@ -149,9 +202,9 @@ def ascii_version_of_hand(cards, current_player=None, deck_code=None):
 
     for card in cards:
         if card.type == "up":
-            current_line = ascii_version_of_card(card, return_string=False, current_player=current_player, deck_code=deck_code)
+            current_line = ascii_version_of_card(card, return_string=False, current_player=current_player, deck_code=deck_code, card_color=card_color)
         else:
-            current_line = ascii_version_of_hidden_card(card, return_string=False, current_player=current_player, deck_code=deck_code)
+            current_line = ascii_version_of_hidden_card(card, return_string=False, current_player=current_player, deck_code=deck_code, card_color=card_color)
 
         for index, line in enumerate(current_line):
             lines[index].append(line)
