@@ -83,13 +83,24 @@ def main():
                 quit()
 
             elif inCode == 'remove':
-                codes_to_remove = input(" Enter card code to remove (to enter multiple codes seperate them by ' '):  ")
-                target_codes = codes_to_remove.split(' ')
-                for code in target_codes:
-                    try:
+                cards_to_remove = input(" Enter index of cards to remove (to enter multiple codes seperate them by ' '):  ")
+                try:
+                    cards_to_remove = cards_to_remove.split(' ')
+
+                    #shift to zero indexed
+                    for index_i in range(len(cards_to_remove)):
+                        cards_to_remove[index_i] = int(cards_to_remove[index_i]) - 1
+
+                    counter = 0
+                    for card_i in cards_to_remove:
+                        cards_to_remove[counter] = current_hand_codes[card_i]
+                        counter += 1
+
+                    for code in cards_to_remove:
                         current_hand_codes.remove(code)
-                    except:
-                        print(f"{code} was not in your current hand")
+                except:
+                    print("error discarding try again")
+
                 print(current_hand_codes)
 
             elif inCode == 'reorder':

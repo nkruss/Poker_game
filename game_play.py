@@ -353,11 +353,13 @@ class Game():
         while(highest_num_legs < 3):
             new_round = True
             while(1==1):
-                #add new aunties
-                for player in self.players:
-                    player.hand.reset()
-                    player.auntie(5)
-                    self.pot += 5
+
+                if new_round:
+                    #add new aunties
+                    for player in self.players:
+                        player.hand.reset()
+                        player.auntie(5)
+                        self.pot += 5
 
                 someones_in = False
                 player_in_index = 0
@@ -476,9 +478,13 @@ class Game():
                     self.table.add_up_card(flipped_card)
 
                 for player in self.players:
+                    cards_to_remove = []
                     for card in player.hand.cards:
                         if card.rank == flipped_card.rank:
-                            player.hand.cards.remove(card)
+                            cards_to_remove.append(card)
+                    for card in cards_to_remove:
+                        player.hand.cards.remove(card)
+
                 print(self)
 
             #last round of betting
@@ -661,15 +667,12 @@ class Game():
                 if player.legs == 0:
                     player_dic[player.name] = False
                     player_eliminated = True
+                    player_eliminated_index = players_original.index(player)
 
 
             #loop the dealer
             if self.dealer_i >= len(players_original) - 1:
                 self.dealer_i = 0
-
-            elif player_eliminated == True:
-                pass
-
             else:
                 #rotate dealer
                 self.dealer_i += 1
@@ -686,6 +689,10 @@ class Game():
                 #check if player is still in game and if so add them to the player list
                 if player_dic[player_name] == True:
                     self.players.append(players_original[player_i])
+
+            print("next order:")
+            for player in self.players:
+                print(player.name)
 
             #reset players hands
             for player in self.players:
@@ -816,7 +823,6 @@ class Game():
 
             #end game condition
             if num_losers == 0 and len(players_in) == 1:
-                #
                 player_tuple[0].chip_stack +=  self.pot
                 self.game_over = True
 
@@ -863,7 +869,6 @@ class Game():
             players_to_remove = []
             for player in eligible_players:
                 if player not in self.players:
-                    print("removing", player.name)
                     players_to_remove.append(player)
             for player in players_to_remove:
                 eligible_players.remove(player)
@@ -894,13 +899,12 @@ class Game():
 
                 #remove player if they folded
                 for player in eligible_players:
-                    if player not in self.players:
-                        print("removing", player.name)
+                    if player not in self.players and (player not in players_to_remove):
                         players_to_remove.append(player)
 
                 #actual removal of players
                 for player in players_to_remove:
-                    print("removing", player.name)
+
                     eligible_players.remove(player)
 
                 #condition to end game
@@ -987,7 +991,7 @@ class Game():
 
                     discard_recorded = True
                 except:
-                    print("error passing try again")
+                    print("error discarding try again")
 
             for card in cards_to_discard:
                 player.hand.remove_card(card)

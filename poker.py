@@ -28,7 +28,7 @@ def main():
             break
         players.append(Player(player_name, starting_chip_stack))
 
-    dealer_i =  0
+    dealer_i = 0
     while(1==1):
         print()
         print(f"New game, {players[dealer_i].name} is dealer")
@@ -47,11 +47,17 @@ def main():
             name = input("What is the name of the player to remove?  ")
             for player in players:
                 if player.name == name:
+                    index = players.index(player)
                     players.remove(player)
+
+            if dealer_i > index:
+                dealer_i -= 1
+            elif dealer_i > len(players) - 1:
+                dealer_i = 0
 
         elif gametype == "add player":
             name = input("Enter plyer name:  ")
-            players.append(Player(name))
+            players.append(Player(name, starting_chip_stack))
 
         elif gametype not in games:
             print("\nPlease enter a valid game\n\n\n")
