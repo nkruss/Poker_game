@@ -5,9 +5,9 @@ def calculate_high_winner(player_list):
     for player in player_list:
         if len(winners) == 0:
             winners = [player]
-        elif player.best_hand[1] > winners[0].best_hand[1]:
+        elif player.high_hand[1] > winners[0].high_hand[1]:
             winners = [player]
-        elif player.best_hand[1] == winners[0].best_hand[1]:
+        elif player.high_hand[1] == winners[0].high_hand[1]:
             winners.append(player)
 
     for winner_i in range(len(winners)):
@@ -15,6 +15,22 @@ def calculate_high_winner(player_list):
 
     return winners
 
+def calculate_low_winner(player_list):
+    winners = []
+    for player in player_list:
+        if len(winners) == 0:
+            winners = [player]
+        elif player.low_hand[1] > winners[0].low_hand[1]:
+            winners = [player]
+        elif player.low_hand[1] == winners[0].low_hand[1]:
+            winners.append(player)
+
+    for winner_i in range(len(winners)):
+        winners[winner_i] = winners[winner_i].name
+
+    return winners
+
+#flushes are still creating issues with wild cards
 def determine_hand_high(player, table_cards, wild_cards: list):
     """
     wild_cards is a list of the ranks of the possible wild cards
@@ -22,12 +38,14 @@ def determine_hand_high(player, table_cards, wild_cards: list):
 
     ranks = ["Ace", "King", "Queen", "Jack", "10", "9", "8", "7", "6", "5", "4", "3", "2", "Ace"]
     hand_order = ["high_card", "pair", "2_pair", "3_of_kind", "straight", "flush", "full_house", "4_of_kind", "straight_flush", "5_of_kind"]
-    #process player hands
+
     hand_ranks = {}
     hand_suits = {}
     remaining_ranks_in_hand = []
     num_wilds = 0
-    best_hand = None
+    high_hand = None
+
+    #process player hands
     possible_cards = player.hand.cards + table_cards
     for card in possible_cards:
         if card.rank in wild_cards:
@@ -70,34 +88,27 @@ def determine_hand_high(player, table_cards, wild_cards: list):
             if ranks.index(key) <= ranks.index(second_highest_set[1]):
                 second_highest_set = (hand_ranks[key], key)
 
-        # print("H", highest_set)
-        # print("S", second_highest_set)
-        # print(key, hand_ranks[key])
-
-    # print(highest_set)
-    # print(second_highest_set)
-
     current_best = 0
     #5 of kind
     if highest_set[0] >= 5 - num_wilds:
-        best_hand = f"5 of a Kind - {highest_set[1]}'s"
+        high_hand = f"5 of a Kind - {highest_set[1]}'s"
         current_best = hand_order.index("5_of_kind")
         score = (current_best * 1000) - (ranks.index(highest_set[1]) * 10)
     #4 of kind
     elif highest_set[0] == 4 - num_wilds:
-        best_hand = f"4 of a Kind - {highest_set[1]}'s"
+        high_hand = f"4 of a Kind - {highest_set[1]}'s"
         current_best = hand_order.index("4_of_kind")
         remaining_ranks_in_hand.remove(ranks.index(highest_set[1]))
         remaining_ranks_in_hand.sort()
         score = (current_best * 1000) - (ranks.index(highest_set[1]) * 10) - remaining_ranks_in_hand[0]
     #full house
     elif highest_set[0] == 3 - num_wilds and second_highest_set[0] >= 2:
-        best_hand = f"Full House - {highest_set[1]}'s over {second_highest_set[1]}'s"
+        high_hand = f"Full House - {highest_set[1]}'s over {second_highest_set[1]}'s"
         current_best = hand_order.index("full_house")
         score = (current_best * 1000) - (ranks.index(highest_set[1]) * 10) - (ranks.index(second_highest_set[1]))
     #3 of kind
     elif highest_set[0] == 3 - num_wilds:
-        best_hand = f"3 of a Kind - {highest_set[1]}'s"
+        high_hand = f"3 of a Kind - {highest_set[1]}'s"
         current_best = hand_order.index("3_of_kind")
         remaining_ranks_in_hand.remove(ranks.index(highest_set[1]))
         remaining_ranks_in_hand.sort()
@@ -106,7 +117,7 @@ def determine_hand_high(player, table_cards, wild_cards: list):
             score -= remaining_ranks_in_hand[i]
     #2 pair
     elif highest_set[0] == 2 and second_highest_set[0] == 2:
-        best_hand = f"2 Pair - {highest_set[1]}'s and {second_highest_set[1]}'s"
+        high_hand = f"2 Pair - {highest_set[1]}'s and {second_highest_set[1]}'s"
         current_best = hand_order.index("2_pair")
         remaining_ranks_in_hand.remove(ranks.index(highest_set[1]))
         remaining_ranks_in_hand.remove(ranks.index(second_highest_set[1]))
@@ -116,7 +127,7 @@ def determine_hand_high(player, table_cards, wild_cards: list):
             score -= remaining_ranks_in_hand[i]
     #pair
     elif highest_set[0] == 2 - num_wilds:
-        best_hand = f"Pair - {highest_set[1]}'s"
+        high_hand = f"Pair - {highest_set[1]}'s"
         current_best = hand_order.index("pair")
         remaining_ranks_in_hand.remove(ranks.index(highest_set[1]))
         remaining_ranks_in_hand.sort()
@@ -124,17 +135,17 @@ def determine_hand_high(player, table_cards, wild_cards: list):
         for i in range(3):
             score -= remaining_ranks_in_hand[i]
     else:
-        best_hand = f"{highest_set[1]} High"
+        high_hand = f"{highest_set[1]} High"
         current_best = hand_order.index("high_card")
         remaining_ranks_in_hand.sort()
         score = (current_best * 1000)
         for i in range(5):
             score -= remaining_ranks_in_hand[i]
 
-    #check flush
+    #check flush #
     flush_exists = False
     for key in hand_suits:
-        if (len(hand_suits[key]) >= 5 - num_wilds):
+        if len(hand_suits[key]) >= 5 - num_wilds:
             flush_exists = True
 
             rank_index_list = []
@@ -142,11 +153,18 @@ def determine_hand_high(player, table_cards, wild_cards: list):
                 rank_index_list.append(ranks.index(rank))
             rank_index_list.sort()
             flush_score = (hand_order.index("flush") * 1000)
-            for i in range(5):
+            for i in range(len(rank_index_list)):
                 flush_score -= rank_index_list[i]
+            neg_count = 1
+            for i in range(num_wilds):
+                if rank_index_list[-1] - i > -1:
+                    flush_score -= rank_index_list[-1] - i
+                else:
+                    flush_score -= rank_index_list[5-num_wilds] + neg_count
+                    neg_count += 1
 
             if score < flush_score:
-                best_hand = f"Flush - {ranks[rank_index_list[0]]} high"
+                high_hand = f"Flush - {ranks[rank_index_list[0]]} high"
                 current_best = hand_order.index("flush")
                 score = flush_score
 
@@ -166,7 +184,7 @@ def determine_hand_high(player, table_cards, wild_cards: list):
                             elif (ranks[start_rank_i + offset] in hand_suits[suit]):
                                 straight_count += 1
                             if straight_count >= 5 - num_wilds and best_straight_flush_i > max(0, start_rank_i - 4 + offset):
-                                best_hand = f"Straight Flush - {ranks[max(0, start_rank_i - 4 + offset)]} high"
+                                high_hand = f"Straight Flush - {ranks[max(0, start_rank_i - 4 + offset)]} high"
                                 best_straight_flush_i = max(0, start_rank_i - 4 + offset)
                                 current_best = hand_order.index("straight_flush")
                                 score = (current_best * 1000) - max(0, start_rank_i - 4 + offset)
@@ -176,17 +194,6 @@ def determine_hand_high(player, table_cards, wild_cards: list):
                             break
 
     #check straight
-    # if current_best < hand_order.index("straight")
-    #     for start_rank_i in range(len(ranks)-4):
-    #         straight_count = 0
-    #         for offset in range(5):
-    #             if (ranks[start_rank_i + offset] in hand_ranks):
-    #                 straight_count += 1
-    #         if straight_count >= 5 - num_wilds:
-    #             best_hand = f"Straight - {ranks[start_rank_i]} high"
-    #             current_best = hand_order.index("straight")
-    #             break
-
     if current_best < hand_order.index("straight"):
         straight_exists = False
         for start_rank_i in range(len(ranks)):
@@ -199,7 +206,7 @@ def determine_hand_high(player, table_cards, wild_cards: list):
                     elif (ranks[start_rank_i + offset] in hand_ranks):
                         straight_count += 1
                     if straight_count >= 5 - num_wilds:
-                        best_hand = f"Straight - {ranks[max(0, start_rank_i - 4 + offset)]} high"
+                        high_hand = f"Straight - {ranks[max(0, start_rank_i - 4 + offset)]} high"
                         current_best = hand_order.index("straight")
                         score = (current_best * 1000) - max(0, start_rank_i - 4 + offset)
                         straight_exists = True
@@ -207,7 +214,61 @@ def determine_hand_high(player, table_cards, wild_cards: list):
                 if straight_exists == True:
                     break
 
-    return (best_hand, score)
+    player.high_hand = (high_hand, score)
+
+def determine_hand_low(player, table_cards, wild_cards: list):
+    """
+    wild_cards is a list of the ranks of the possible wild cards
+    """
+
+    ranks = ["King", "Queen", "Jack", "10", "9", "8", "7", "6", "5", "4", "3", "2", "Ace"]
+
+    hand_ranks = {}
+    remaining_ranks_in_hand = []
+    num_wilds = 0
+    low_hand = None
+
+    #process player hands
+    possible_cards = player.hand.cards + table_cards
+    for card in possible_cards:
+        if card.rank in wild_cards:
+            num_wilds += 1
+        else:
+            if card.rank not in hand_ranks:
+                hand_ranks[card.rank] = 1
+                remaining_ranks_in_hand.append(ranks.index(card.rank))
+            else:
+                hand_ranks[card.rank] += 1
+
+    if len(hand_ranks) + num_wilds >= 5:
+        remaining_ranks_in_hand.sort()
+        used_wilds = []
+
+        low_hand = ""
+        low_hand_i = []
+
+        score = 0
+        for i in range(5 - num_wilds,0,-1):
+            low_hand_i.append(remaining_ranks_in_hand[-i])
+        for i in range(num_wilds):
+            for j in range(12):
+                if (12 - j) not in low_hand_i:
+                    low_hand_i.append(12-j)
+                    used_wilds.append(12-j)
+                    break
+
+        low_hand_i.sort()
+        count = 4
+        for i in low_hand_i:
+            low_hand = low_hand + ',' + ranks[i]
+            score += i * (10 ** count)
+            count -= 1
+
+        low_hand = low_hand[1:]
+    else:
+        score = 0
+
+    player.low_hand = (low_hand, score)
 
 # def determine_hand_high_2_card(player, table, wild_cards: list):
 #     """

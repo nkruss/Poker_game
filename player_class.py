@@ -10,7 +10,8 @@ class Player():
         self.bet = 0
         self.legs = 0
 
-        self.best_hand = None
+        self.high_hand = None
+        self.low_hand = None
 
         #create random key
         self.deck_multiplier = random.randint(1, 886)
