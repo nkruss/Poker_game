@@ -35,7 +35,7 @@ class Game():
         self.game_over = False
 
         #will use for holdem elivator and kings
-        self.table_hand = []
+        # self.table_hand = []
 
         if gametype == "Baseball":
             #still need to figure out buying fours
