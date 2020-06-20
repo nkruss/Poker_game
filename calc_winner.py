@@ -25,6 +25,7 @@ def determine_hand_high(player, table_cards, wild_cards: list):
     #process player hands
     hand_ranks = {}
     hand_suits = {}
+    remaining_ranks_in_hand = []
     num_wilds = 0
     best_hand = None
     possible_cards = player.hand.cards + table_cards
@@ -34,6 +35,7 @@ def determine_hand_high(player, table_cards, wild_cards: list):
         else:
             if card.rank not in hand_ranks:
                 hand_ranks[card.rank] = 1
+                remaining_ranks_in_hand.append(ranks.index(card.rank))
             else:
                 hand_ranks[card.rank] += 1
 
@@ -46,9 +48,6 @@ def determine_hand_high(player, table_cards, wild_cards: list):
     highest_set = (0, "2")
     second_highest_set = (0, "2")
     for key in hand_ranks:
-        # print("H", highest_set)
-        # print("S", second_highest_set)
-        # print(key, hand_ranks[key])
 
         #found new highest number in a set
         if hand_ranks[key] > highest_set[0]:
@@ -61,7 +60,7 @@ def determine_hand_high(player, table_cards, wild_cards: list):
             if ranks.index(key) < ranks.index(highest_set[1]):
                 second_highest_set = highest_set
                 highest_set = (hand_ranks[key], key)
-            elif ranks.index(key) <= ranks.index(second_highest_set[1]):
+            elif hand_ranks[key] > second_highest_set[0] or ranks.index(key) <= ranks.index(second_highest_set[1]):
                 second_highest_set = (hand_ranks[key], key)
         #found a new second best set
         elif hand_ranks[key] > second_highest_set[0]:
@@ -71,46 +70,85 @@ def determine_hand_high(player, table_cards, wild_cards: list):
             if ranks.index(key) <= ranks.index(second_highest_set[1]):
                 second_highest_set = (hand_ranks[key], key)
 
+        # print("H", highest_set)
+        # print("S", second_highest_set)
+        # print(key, hand_ranks[key])
+
+    # print(highest_set)
+    # print(second_highest_set)
+
     current_best = 0
+    #5 of kind
     if highest_set[0] >= 5 - num_wilds:
         best_hand = f"5 of a Kind - {highest_set[1]}'s"
         current_best = hand_order.index("5_of_kind")
-        score = (current_best * 1000) - ranks.index(highest_set[1])
+        score = (current_best * 1000) - (ranks.index(highest_set[1]) * 10)
+    #4 of kind
     elif highest_set[0] == 4 - num_wilds:
         best_hand = f"4 of a Kind - {highest_set[1]}'s"
         current_best = hand_order.index("4_of_kind")
-        score = (current_best * 1000) - ranks.index(highest_set[1])
-    elif highest_set[0] == 3 - num_wilds and second_highest_set[0] == 2:
+        remaining_ranks_in_hand.remove(ranks.index(highest_set[1]))
+        remaining_ranks_in_hand.sort()
+        score = (current_best * 1000) - (ranks.index(highest_set[1]) * 10) - remaining_ranks_in_hand[0]
+    #full house
+    elif highest_set[0] == 3 - num_wilds and second_highest_set[0] >= 2:
         best_hand = f"Full House - {highest_set[1]}'s over {second_highest_set[1]}'s"
         current_best = hand_order.index("full_house")
         score = (current_best * 1000) - (ranks.index(highest_set[1]) * 10) - (ranks.index(second_highest_set[1]))
+    #3 of kind
     elif highest_set[0] == 3 - num_wilds:
         best_hand = f"3 of a Kind - {highest_set[1]}'s"
         current_best = hand_order.index("3_of_kind")
-        score = (current_best * 1000) - ranks.index(highest_set[1])
+        remaining_ranks_in_hand.remove(ranks.index(highest_set[1]))
+        remaining_ranks_in_hand.sort()
+        score = (current_best * 1000) - (ranks.index(highest_set[1]) * 100)
+        for i in range(2):
+            score -= remaining_ranks_in_hand[i]
+    #2 pair
     elif highest_set[0] == 2 and second_highest_set[0] == 2:
         best_hand = f"2 Pair - {highest_set[1]}'s and {second_highest_set[1]}'s"
         current_best = hand_order.index("2_pair")
+        remaining_ranks_in_hand.remove(ranks.index(highest_set[1]))
+        remaining_ranks_in_hand.remove(ranks.index(second_highest_set[1]))
+        remaining_ranks_in_hand.sort()
         score = (current_best * 1000) - (ranks.index(highest_set[1]) * 10) - (ranks.index(second_highest_set[1]))
+        for i in range(1):
+            score -= remaining_ranks_in_hand[i]
+    #pair
     elif highest_set[0] == 2 - num_wilds:
         best_hand = f"Pair - {highest_set[1]}'s"
         current_best = hand_order.index("pair")
-        score = (current_best * 1000) - ranks.index(highest_set[1])
+        remaining_ranks_in_hand.remove(ranks.index(highest_set[1]))
+        remaining_ranks_in_hand.sort()
+        score = (current_best * 1000) - (ranks.index(highest_set[1]) * 10)
+        for i in range(3):
+            score -= remaining_ranks_in_hand[i]
     else:
         best_hand = f"{highest_set[1]} High"
         current_best = hand_order.index("high_card")
-        score = (current_best * 1000) - ranks.index(highest_set[1])
-        #possibly sort dic then add card values together
+        remaining_ranks_in_hand.sort()
+        score = (current_best * 1000)
+        for i in range(5):
+            score -= remaining_ranks_in_hand[i]
 
     #check flush
     flush_exists = False
     for key in hand_suits:
         if (len(hand_suits[key]) >= 5 - num_wilds):
             flush_exists = True
-            if current_best < hand_order.index("flush"):
-                best_hand = "Flush"
+
+            rank_index_list = []
+            for rank in hand_suits[key]:
+                rank_index_list.append(ranks.index(rank))
+            rank_index_list.sort()
+            flush_score = (hand_order.index("flush") * 1000)
+            for i in range(5):
+                flush_score -= rank_index_list[i]
+
+            if score < flush_score:
+                best_hand = f"Flush - {ranks[rank_index_list[0]]} high"
                 current_best = hand_order.index("flush")
-                score = (current_best * 1000)
+                score = flush_score
 
     #check for straight flush
     if flush_exists:
