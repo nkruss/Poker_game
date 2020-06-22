@@ -790,7 +790,7 @@ class Game():
             self.table.cards[0].type = "up"
             self.table.cards[1].type = "up"
 
-            #deal four down cards to each player
+            #deal 3 down cards to each player
             for i in range(2):
                 self.deal_down(display=False)
             self.deal_down()
@@ -824,33 +824,68 @@ class Game():
             #get payout amount
             payout = self.pot
 
-            # blind = Player("blind", 0)
-            # blind.hand.cards = self.table.cards[5:]
+            winners = []
+            tie = []
+            for player_tuple in players_in:
+                player = player_tuple[0]
+                determine_king_hands(player, self.table, player_tuple[1])
 
+                #if no current winner set current player to winner
+                if len(winners) == 0:
+                    winners = [player]
+                #if player has better hand then current winner set winner to current player
+                elif player.high_hand[1] > winners[0].high_hand[1]:
+                    winners = [player]
+                    tie = []
+                #if player has a hand as good as current player add them to the winner list
+                elif player.high_hand[1] == winners[0].high_hand[1]:
+                    tie.append(winners[0])
+                    tie.append(player)
+
+            print()
+            print("###############################################################")
+            #if only one person is in calculate blinds hand
+            if len(players_in) == 1:
+                blind = Player("blind", 0)
+                blind.hand.cards = self.table.cards[5:]
+                determine_king_hands(blind, self.table, "blind")
+                #if blind has better hand then current winner set winner to be empty
+                if blind.high_hand[1] > winners[0].high_hand[1]:
+                    winners = []
+                #if tie with blind
+                elif blind.high_hand[1] == winners[0].high_hand[1]:
+                    tie.append(winners[0])
+                    winners = []
+                print(f"Blind had {blind.high_hand[0]}")
+
+            #award the money
             num_losers = 0
             for player_tuple in players_in:
-
-                print(f"{player_tuple[0].name} you went in the {player_tuple[1]}")
-                result = input(f" {player_tuple[0].name} did you win, lose, or tie (w/l/t)?  ")
-
-                if result == "w":
-                    player_tuple[0].chip_stack +=  payout
+                player = player_tuple[0]
+                direction = player_tuple[1]
+                if player in tie:
+                    num_losers += 1
+                    print(f"{player.name} you tied with a {player.high_hand[0]}")
+                elif player in winners:
+                    player.chip_stack += payout
                     self.pot -= payout
-                #double or nothing condition
-                elif result == "l" and player_tuple[1] == "double":
-                    player_tuple[0].chip_stack -=  (2 * min(payout, kings_cap))
+                    print(f"{player.name} you won {payout} with a {player.high_hand[0]}")
+                elif direction == "double":
+                    player.chip_stack -= (2 * min(payout, kings_cap))
                     self.pot += (2 * min(payout, kings_cap))
                     num_losers += 1
-                elif result == "t":
-                    num_losers += 1
+                    print(f"{player.name} you lost {(2 * min(payout, kings_cap))} with a {player.high_hand[0]}")
                 else:
-                    player_tuple[0].chip_stack -= min(payout, kings_cap)
+                    player.chip_stack -= min(payout, kings_cap)
                     self.pot += min(payout, kings_cap)
                     num_losers += 1
+                    print(f"{player.name} you lost {min(payout, kings_cap)} with a {player.high_hand[0]}")
+            print()
+            print("###############################################################")
 
             #end game condition
             if num_losers == 0 and len(players_in) == 1:
-                player_tuple[0].chip_stack +=  self.pot
+                winners[0].chip_stack += self.pot
                 self.game_over = True
 
             #reset players hands, deck, and table hand, rotate deal
@@ -858,7 +893,7 @@ class Game():
                 self.deck = Deck()
                 self.table.cards = []
                 for player in self.players:
-                    player.hand.reset()
+                    player.reset_hand()
 
                 #rotate dealer
                 self.dealer_i += 1
@@ -1321,7 +1356,7 @@ class Game():
                 determine_hand_high(player, self.table.cards, high_wild)
                 determine_hand_low(player, self.table.cards, low_wild)
 
-                print(player.name, high_wild, low_wild)
+                #print(player.name, high_wild, low_wild)
 
             high_winners = calculate_high_winner(self.players, players_going_high)
             low_winners = calculate_low_winner(self.players, players_going_low)

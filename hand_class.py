@@ -81,13 +81,12 @@ class Hand():
         line_1 = [blank_card, self.cards[0], blank_card]
         line_3 = [blank_card, self.cards[4], blank_card]
         blind = self.cards[5:9]
+        for card in blind:
+            line_3.append(card)
 
         string += "\n" + ascii_version_of_hand(line_1, card_color=card_color)
         string += "\n" + ascii_version_of_hand(self.cards[1:4], card_color=card_color)
         string += "\n" + ascii_version_of_hand(line_3, card_color=card_color)
-
-        string += "\n" + "Blind: "
-        string += "\n" + ascii_version_of_hand(blind, card_color=card_color) + "\n"
 
         return string
 
