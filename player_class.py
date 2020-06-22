@@ -10,8 +10,11 @@ class Player():
         self.bet = 0
         self.legs = 0
 
-        self.high_hand = None
-        self.low_hand = None
+        #properties for determining winner
+        self.high_hand = (None, -1000000)
+        self.low_hand = (None, -1000000)
+        self.high_score = 0
+        self.low_score = 0
 
         #create random key
         self.deck_multiplier = random.randint(1, 886)
@@ -72,3 +75,10 @@ class Player():
 
     def coded_str_player(self, deck_code, card_color):
         return f"{self.name}: chip stack is {self.chip_stack}, hand is \n{self.hand.coded_str_hand(self, deck_code, card_color)}\n"
+
+    def reset_hand(self):
+        self.hand.reset()
+        self.high_hand = (None, -1000000)
+        self.low_hand = (None, -1000000)
+        self.high_score = 0
+        self.low_score = 0

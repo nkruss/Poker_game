@@ -1,33 +1,53 @@
-from game_play import *
+import random
+from player_class import *
+from hand_class import *
+from cards_deck import *
 
-def calculate_high_winner(player_list):
+def calculate_high_winner(player_list, players_going_high):
     winners = []
     for player in player_list:
-        if len(winners) == 0:
-            winners = [player]
-        elif player.high_hand[1] > winners[0].high_hand[1]:
-            winners = [player]
-        elif player.high_hand[1] == winners[0].high_hand[1]:
-            winners.append(player)
-
-    for winner_i in range(len(winners)):
-        winners[winner_i] = winners[winner_i].name
+        if player.name in players_going_high:
+            #if no current winner set current player to winner
+            if len(winners) == 0:
+                winners = [player]
+            #if player has better hand then current winner set winner to current player
+            elif player.high_hand[1] > winners[0].high_hand[1]:
+                winners = [player]
+            #if player has a hand as good as current player add them to the winner list
+            elif player.high_hand[1] == winners[0].high_hand[1]:
+                winners.append(player)
 
     return winners
 
-def calculate_low_winner(player_list):
+def calculate_low_winner(player_list, players_going_low):
     winners = []
     for player in player_list:
-        if len(winners) == 0:
-            winners = [player]
-        elif player.low_hand[1] > winners[0].low_hand[1]:
-            winners = [player]
-        elif player.low_hand[1] == winners[0].low_hand[1]:
-            winners.append(player)
+        if player.name in players_going_low:
+            if len(winners) == 0:
+                winners = [player]
+            elif player.low_hand[1] > winners[0].low_hand[1]:
+                winners = [player]
+            elif player.low_hand[1] == winners[0].low_hand[1]:
+                winners.append(player)
 
-    for winner_i in range(len(winners)):
-        winners[winner_i] = winners[winner_i].name
+    # for winner_i in range(len(winners)):
+    #     winners[winner_i] = winners[winner_i].name
 
+    return winners
+
+def calculate_down_spade_winner(player_list):
+    ranks = ["Ace", "King", "Queen", "Jack", "10", "9", "8", "7", "6", "5", "4", "3", "2"]
+    winners = []
+    high_spade_rank = 100
+    for player in player_list:
+        for card in player.hand.cards:
+            if card.suit == "Spades" and card.type == "down":
+                if len(winners) == 0:
+                    winners.append(player)
+                    high_spade_rank = ranks.index(card.rank)
+                elif ranks.index(card.rank) < high_spade_rank:
+                    winners = [player]
+                    high_spade_rank = ranks.index(card.rank)
     return winners
 
 #flushes are still creating issues with wild cards
@@ -142,27 +162,33 @@ def determine_hand_high(player, table_cards, wild_cards: list):
         for i in range(5):
             score -= remaining_ranks_in_hand[i]
 
-    #check flush #
+    #check flush
     flush_exists = False
     for key in hand_suits:
         if len(hand_suits[key]) >= 5 - num_wilds:
             flush_exists = True
 
             rank_index_list = []
+
+            #get ranks of cards that a person has in their hand
             for rank in hand_suits[key]:
                 rank_index_list.append(ranks.index(rank))
+
+            #add ranks of wild cards
+            for i in range(num_wilds):
+                for rank_i in range(len(ranks)):
+                    if rank_i not in rank_index_list:
+                        rank_index_list.append(rank_i)
+                        break
+
+            #get score of the flush
             rank_index_list.sort()
+            rank_index_list.reverse()
             flush_score = (hand_order.index("flush") * 1000)
             for i in range(len(rank_index_list)):
-                flush_score -= rank_index_list[i]
-            neg_count = 1
-            for i in range(num_wilds):
-                if rank_index_list[-1] - i > -1:
-                    flush_score -= rank_index_list[-1] - i
-                else:
-                    flush_score -= rank_index_list[5-num_wilds] + neg_count
-                    neg_count += 1
+                flush_score -= (rank_index_list[i] * (2 ** i))
 
+            #check if this flush is better then another flush player has
             if score < flush_score:
                 high_hand = f"Flush - {ranks[rank_index_list[0]]} high"
                 current_best = hand_order.index("flush")
@@ -214,7 +240,9 @@ def determine_hand_high(player, table_cards, wild_cards: list):
                 if straight_exists == True:
                     break
 
-    player.high_hand = (high_hand, score)
+    if player.high_hand[1] <= score:
+        player.high_hand = (high_hand, score)
+        #print(f"{high_hand} - {possible_cards[0]}, {possible_cards[1]}, {possible_cards[2]}, {possible_cards[3]}, {possible_cards[4]}")
 
 def determine_hand_low(player, table_cards, wild_cards: list):
     """
@@ -268,174 +296,219 @@ def determine_hand_low(player, table_cards, wild_cards: list):
     else:
         score = 0
 
-    player.low_hand = (low_hand, score)
+    if player.low_hand[1] <= score:
+        player.low_hand = (low_hand, score)
 
-# def determine_hand_high_2_card(player, table, wild_cards: list):
-#     """
-#     wild_cards is a list of the ranks of the possible wild cards
-#     """
-#
-#     ranks = ["Ace", "King", "Queen", "Jack", "10", "9", "8", "7", "6", "5", "4", "3", "2", "Ace"]
-#     hand_order = ["high_card", "pair", "2_pair", "3_of_kind", "straight", "flush", "full_house", "4_of_kind", "staight_flush", "5_of_kind"]
-#
-#     hand_ranks_table = {}
-#     hand_suits_table = {}
-#     num_wilds_table = 0
-#     for card in table.cards:
-#         if card.rank in wild_cards:
-#             num_wilds_table += 1
-#         else:
-#             if card.rank not in hand_ranks_table:
-#                 hand_ranks_table[card.rank] = 1
-#             else:
-#                 hand_ranks_table[card.rank] += 1
-#
-#             if card.suit not in hand_suits_table:
-#                 hand_suits_table[card.suit] = [card.rank]
-#             else:
-#                 hand_suits_table[card.suit].append(card.rank)
-#     num_wilds_table = min(3, num_wilds_table)
-#
-#     best_hand = None
-#
-#     for i in range(4):
-#         for j in range(i+1, 4):
-#             #process player hands
-#             hand_ranks = hand_ranks_table
-#             hand_suits = hand_suits_table
-#             num_wilds = 0
-#
-#             required_cards = [player.hand.card[i], player.hand.card[j]]
-#             for card in required_cards:
-#                 if card.rank in wild_cards:
-#                     num_wilds += 1
-#                 else:
-#                     if card.rank not in hand_ranks:
-#                         hand_ranks[card.rank] = 1
-#                     else:
-#                         hand_ranks[card.rank] += 1
-#
-#                     if card.suit not in hand_suits:
-#                         hand_suits[card.suit] = [card.rank]
-#                     else:
-#                         hand_suits[card.suit].append(card.rank)
-#
-#             #determine best set using two cards from hand
-#             highest_set = (0, None)
-#             second_highest_set = (0, None)
-#             for key in hand_ranks:
-#                 #found new highest number in a set
-#                 if hand_ranks[key] > highest_set[0]:
-#                     highest_set = (hand_ranks[key], key)
-#                 #found a set using the same number of cards
-#                 elif hand_ranks[key] == highest_set[0]:
-#                     #if new set's rank is higher shift the previous set to secound
-#                     #position and update highest set
-#                     if ranks.index(key) < highest_set[1]:
-#                         second_highest_set = highest_set
-#                         highest_set = (hand_ranks[key], key)
-#                     else:
-#                         second_highest_set = (hand_ranks[key], key)
-#                 #found a new second best set
-#                 elif hand_ranks[key] > second_highest_set:
-#                     second_highest_set = (hand_ranks[key], key)
-#                 #Equal number but better card
-#                 elif hand_ranks[key] == second_highest_set:
-#                     if ranks.index(key) < second_highest_set[1]:
-#                         second_highest_set = (hand_ranks[key], key)
-#
-#             current_best = 0
-#             #need to use both
-#             if num_wilds == 0:
-#                 if ((player.hand.card[i].rank == player.hand.card[j].rank) and
-#                     (player.hand.card[i].rank == highest_set[1])):
-#
-#                     if highest_set[0] >= 5 - (num_wilds + num_wilds_table):
-#                         best_hand = f"5 of a Kind - {highest_set[1]}'s"
-#                         current_best = hand_order.index("5_of_kind")
-#
-#
-#                 #need to use at least one
-#                 elif highest_set[0] == 4 - num_wilds:
-#                     best_hand = f"4 of a Kind - {highest_set[1]}'s"
-#                     current_best = hand_order.index("4_of_kind")
-#                 #need to use both
-#                 elif highest_set[0] == 3 - num_wilds and second_highest_set[0] == 2:
-#                     best_hand = "Full House - {highest_set[1]}'s over {second_highest_set[1]}'s"
-#                     current_best = hand_order.index("full_house")
-#                 #need to use none
-#                 elif highest_set[0] == 3 - num_wilds:
-#                     best_hand = "3 of a Kind - {highest_set[1]}'s"
-#                     current_best = hand_order.index("3_of_kind")
-#                 #need to use one
-#                 elif highest_set[0] == 2 and second_highest_set[0] == 2:
-#                     best_hand = "2 Pair - {highest_set[1]}'s and {second_highest_set[1]}'s"
-#                     current_best = hand_order.index("2_pair")
-#                 #need to use none
-#                 elif highest_set[0] == 2 - num_wilds:
-#                     best_hand = "Pair - {highest_set[1]}'s"
-#                     current_best = hand_order.index("pair")
-#                 #need to use none
-#                 else:
-#                     best_hand = "{highest_set[1]} High"
-#                     current_best = hand_order.index("high_card")
-#
-#             #check flush
-#             flush_exists = False
-#             for key in hand_suits:
-#                 if (len(hand_suits[key]) >= 5 - num_wilds):
-#                     flush_exists = True
-#                     if current_best < hand_order.index("flush"):
-#                         best_hand = "Flush"
-#                         current_best = hand_order.index("flush")
-#
-#             #check for straight flush
-#             if flush_exists:
-#                 best_straight_flush_i = 14
-#                 for suit in hand_suits:
-#                     if len(hand_suits[suit]) >= 5 - num_wilds:
-#                         straight_flush_exists = False
-#                         for start_rank_i in range(len(ranks)-4):
-#                             straight_count = 0
-#                             if ranks[start_rank_i] in hand_suits[suit]:
-#                                 straight_count += 1
-#                                 for offset in range(1,5):
-#                                     if (ranks[start_rank_i + offset] in hand_suits[suit]):
-#                                         straight_count += 1
-#                                     if straight_count >= 5 - num_wilds and best_straight_flush_i > max(0, start_rank_i - 4 + offset):
-#                                         best_hand = f"Straight Flush - {ranks[max(0, start_rank_i - 4 + offset)]} high"
-#                                         best_straight_flush_i = max(0, start_rank_i - 4 + offset)
-#                                         current_best = hand_order.index("straight")
-#                                         straight_flush_exists = True
-#                                         break
-#                                 if straight_flush_exists == True:
-#                                     break
-#
-#             #check straight
-#             # if current_best < hand_order.index("straight")
-#             #     for start_rank_i in range(len(ranks)-4):
-#             #         straight_count = 0
-#             #         for offset in range(5):
-#             #             if (ranks[start_rank_i + offset] in hand_ranks):
-#             #                 straight_count += 1
-#             #         if straight_count >= 5 - num_wilds:
-#             #             best_hand = f"Straight - {ranks[start_rank_i]} high"
-#             #             current_best = hand_order.index("straight")
-#             #             break
-#
-#             if current_best < hand_order.index("straight"):
-#                 straight_exists = False
-#                 for start_rank_i in range(len(ranks)-4):
-#                     straight_count = 0
-#                     if ranks[start_rank_i] in hand_ranks:
-#                         straight_count += 1
-#                         for offset in range(1,5):
-#                             if (ranks[start_rank_i + offset] in hand_ranks):
-#                                 straight_count += 1
-#                             if straight_count >= 5 - num_wilds:
-#                                 best_hand = f"Straight - {ranks[max(0, start_rank_i - 4 + offset)]} high"
-#                                 current_best = hand_order.index("straight")
-#                                 straight_exists = True
-#                                 break
-#                         if straight_exists == True:
-#                             break
+def determine_winner_0_54(player_list, players_going_high, players_going_low):
+    """
+    Create 2 lists of players. One for the players who won high, the other for
+    the players who won low.
+
+    Return a tuple that contains both created lists
+    """
+
+    low_winners = []
+    high_winners = []
+    for player in player_list:
+        #check to see if given player is going low
+        if player.name in players_going_low:
+            #get player score
+            player.low_score = 0
+            for card in player.hand.cards:
+                if card.rank == "Ace":
+                    player.low_score += 1
+                elif len(card.rank) > 1:
+                    player.low_score += 10
+                else:
+                    player.low_score += int(card.rank)
+            if len(low_winners) == 0:
+                low_winners.append(player)
+            elif player.low_score < low_winners[0].low_score:
+                low_winners = [player]
+            elif player.low_score == low_winners[0].low_score:
+                low_winners.append(player)
+
+            #print(f"{player.name}: low score = {player.low_score}")
+
+        #check to see if given player is going high
+        if player.name in players_going_high:
+            #get player score
+            player.high_score = 0
+            for card in player.hand.cards:
+                if card.rank == "Ace":
+                    player.high_score += 11
+                elif len(card.rank) > 1:
+                    player.high_score += 10
+                else:
+                    player.high_score += int(card.rank)
+            if len(high_winners) == 0:
+                high_winners.append(player)
+            elif player.high_score > high_winners[0].high_score:
+                high_winners = [player]
+            elif player.high_score == high_winners[0].high_score:
+                high_winners.append(player)
+
+            #print(f"{player.name}: high score = {player.high_score}")
+
+    return (high_winners, low_winners)
+
+def determine_winner_7_27(player_list, players_going_high, players_going_low):
+    """
+    Create 2 lists of players. One for the players who won high, the other for
+    the players who won low.
+
+    Return a tuple that contains both created lists
+    """
+
+    low_winners = []
+    high_winners = []
+    for player in player_list:
+        #check to see if given player is going low
+        if player.name in players_going_low:
+            #get player score
+            player.low_score = 0
+            for card in player.hand.cards:
+                if card.rank == "Ace":
+                    player.low_score += 1
+                elif card.rank == "10":
+                    player.low_score += 10
+                elif len(card.rank) > 1:
+                    player.low_score += .5
+                else:
+                    player.low_score += int(card.rank)
+            #determine if they have a better or equal score to the current winner
+            if len(low_winners) == 0:
+                low_winners.append(player)
+            elif player.low_score < low_winners[0].low_score:
+                low_winners = [player]
+            elif player.low_score == low_winners[0].low_score:
+                low_winners.append(player)
+
+            #print(f"{player.name}: low score = {player.low_score}")
+
+        #check to see if given player is going high
+        if player.name in players_going_high:
+            #get player score
+            player.high_score = 0
+            for card in player.hand.cards:
+                if card.rank == "Ace":
+                    player.high_score += 11
+                elif card.rank == "10":
+                    player.high_score += 10
+                elif len(card.rank) > 1:
+                    player.high_score += .5
+                else:
+                    player.high_score += int(card.rank)
+            #determine if they have a better or equal score to the current winner
+            if len(high_winners) == 0:
+                high_winners.append(player)
+            elif player.high_score > high_winners[0].high_score:
+                high_winners = [player]
+            elif player.high_score == high_winners[0].high_score:
+                high_winners.append(player)
+
+            #print(f"{player.name}: high score = {player.high_score}")
+
+    return (high_winners, low_winners)
+
+def determine_1_card_screw_loser(player_list):
+    pass
+
+def determine_elivator_hands(player, table, wild_cards: list):
+
+    table_hands = []
+    #get all different valid 3 card combos from the table
+    for i in range(4):
+        cards = [table.cards[i], table.cards[4], table.cards[5+i]]
+        table_hands.append(cards)
+
+        card_i = []
+        for j in range(i+1,4):
+            card_i.append(j)
+        for k in range(0, i):
+            card_i.append(k)
+
+        table_hands.append([table.cards[card_i[0]], table.cards[card_i[1]], table.cards[card_i[2]]])
+        table_hands.append([table.cards[card_i[0] + 5], table.cards[card_i[1] + 5], table.cards[card_i[2] + 5]])
+
+    entire_player_hand = player.hand
+
+    for i in range(4):
+        for j in range(i+1, 4):
+            #get two cards from player hand
+            blank_hand = Hand()
+            blank_hand.add_up_card(entire_player_hand.cards[i])
+            blank_hand.add_up_card(entire_player_hand.cards[j])
+            player.hand = blank_hand
+            #look at each 3 card table combo with chosen two cards
+            for table_op in table_hands:
+                determine_hand_high(player, table_op, wild_cards)
+                determine_hand_low(player, table_op, wild_cards)
+
+    player.hand = entire_player_hand
+    # print(player.name)
+    # print("high hand: ", player.high_hand)
+    # print("low hand: ", player.low_hand)
+
+    return None
+
+def determine_king_hands(player, table, direction):
+    table_hand = []
+
+    if direction == "row":
+        table_hand = [table.cards[1], table.cards[2], table.cards[3]]
+    elif direction == "col":
+        table_hand = [table.cards[0], table.cards[2], table.cards[4]]
+    elif direction == "double":
+        table_hand = [table.cards[0], table.cards[1]]
+    else:
+        table_hand = [table.cards[2], table.cards[3], table.cards[4]]
+
+    determine_hand_high(player, table_hand, [])
+
+    return None
+
+def determine_omaha_hands(player, table, wild_cards: list):
+    table_hands = []
+
+    # 1 2 3 4 5
+
+    # 1 2 3
+    # 1 2   4
+    # 1 2     5
+    # 1   3 4
+    # 1   3   5
+    # 1     4 5
+    #   2 3 4
+    #   2 3   5
+    #   2   4 5
+    #     3 4 5
+
+    table_hands.append([table.cards[0], table.cards[1], table.cards[2]])
+    table_hands.append([table.cards[0], table.cards[1], table.cards[3]])
+    table_hands.append([table.cards[0], table.cards[1], table.cards[4]])
+    table_hands.append([table.cards[0], table.cards[2], table.cards[3]])
+    table_hands.append([table.cards[0], table.cards[2], table.cards[4]])
+    table_hands.append([table.cards[0], table.cards[3], table.cards[4]])
+    table_hands.append([table.cards[1], table.cards[2], table.cards[3]])
+    table_hands.append([table.cards[1], table.cards[2], table.cards[4]])
+    table_hands.append([table.cards[1], table.cards[3], table.cards[4]])
+    table_hands.append([table.cards[2], table.cards[3], table.cards[4]])
+
+    entire_player_hand = player.hand
+
+    for i in range(4):
+        for j in range(i+1, 4):
+            #get two cards from player hand
+            blank_hand = Hand()
+            blank_hand.add_up_card(entire_player_hand.cards[i])
+            blank_hand.add_up_card(entire_player_hand.cards[j])
+            player.hand = blank_hand
+            #look at each 3 card table combo with chosen two cards
+            for table_op in table_hands:
+                determine_hand_high(player, table_op, wild_cards)
+                determine_hand_low(player, table_op, wild_cards)
+
+    player.hand = entire_player_hand
+
+    return None

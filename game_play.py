@@ -1,13 +1,8 @@
-import random
-from player_class import *
-from hand_class import *
-from cards_deck import *
+from calc_winner import *
 
 class Game():
-    #finish working on 1 card pass the trash
 
     def __init__(self, gametype: str, players: list, dealer_i: int, auntie: int, card_color: bool):
-        #need to implement 7 card screw?, 0-54, elivator?, kings?
 
         self.pot = 0
         self.dealer_i = dealer_i
@@ -15,8 +10,17 @@ class Game():
 
         self.players = players[dealer_i:] + players[:dealer_i]
 
-        cheap_games = ["Nicks"]
-        norm_games = ["Baseball", "Queens", "Whores", "Texas", "Omaha", "0/54", "7_card_screw", "Elevator", "D_and_G", "7/27"]
+        norm_games = ["Baseball",
+                        "Queens",
+                        "Whores",
+                        "Texas",
+                        "Omaha",
+                        "0/54",
+                        "7_card_screw",
+                        "Elevator",
+                        "D_and_G",
+                        "7/27",
+                        "Bipolor"]
 
         if gametype in norm_games:
             for player in players:
@@ -33,20 +37,20 @@ class Game():
         self.current_bet = 0
         self.dealtype = None
         self.game_over = False
-
-        #will use for holdem elivator and kings
-        # self.table_hand = []
+        self.wilds = []
 
         if gametype == "Baseball":
-            #still need to figure out buying fours
             self.rules = "7 card stud: 3's and 9's wild. 4 can buy an extra card"
             self.dealtype = "baseball"
+            self.wilds = ["3", "9"]
         elif gametype == "Queens":
             self.rules = "7 card stud: queens are wild and card following latest up queen is wild"
             self.dealtype = "sevencard"
+            self.wilds = ["Queen", "Queen"]
         elif gametype == "Whores":
             self.rules = "7 card stud: queens are wild and card following latest up queen is wild, high hand splits with high spade"
             self.dealtype = "sevencard_split"
+            self.wilds = ["Queen", "Queen"]
         elif gametype == "Texas":
             self.rules = "Classic holdem"
             self.dealtype = "holdem"
@@ -77,6 +81,9 @@ class Game():
         elif gametype == "7/27":
             self.rules = "7/27: Closest to 7 and 27 from below (aces=1 or 11, face-cards=.5), can pass getting aditional card 3 times before hand is locked"
             self.dealtype= "7/27"
+        if gametype == "Bipolor":
+            self.rules = "7 card stud: Split between queens and baseball. Game shifts to Queen's on up-queen, shifts to Baseball on up 9"
+            self.dealtype = "bipolor"
 
     def __str__(self):
         if self.dealtype == "elevator":
@@ -111,29 +118,26 @@ class Game():
     def play(self):
 
         if self.dealtype == "sevencard":
-            self.sevencard()
-            self.reveal_all_hands()
+            self.queens()
             self.winner()
+            self.reveal_all_hands()
 
         elif self.dealtype == "sevencard_split":
-            #deal type
-            self.sevencard()
-            #show everyones hand so they can determine who won
+            self.queens()
+            self.winner()
             self.reveal_all_hands()
-            #pot type
-            self.winner_split()
 
         elif self.dealtype == "holdem":
             self.holdem()
-            self.reveal_all_hands()
             self.winner()
+            self.reveal_all_hands()
 
         elif self.dealtype == "holdem_split":
             self.omaha()
             print("people declare low or high")
             input("click enter once people have determined if they're going low or high")
+            self.winner()
             self.reveal_all_hands()
-            self.winner_split()
 
         elif self.dealtype == "nicks":
             self.nicks()
@@ -142,51 +146,71 @@ class Game():
             self.zero_fifty()
             print("people declare low or high")
             input("click enter once people have determined if they're going low or high")
+            self.winner()
             self.reveal_all_hands()
-            self.winner_split()
 
         elif self.dealtype == "7_card_screw":
             self.seven_card_screw()
-            self.winner_split()
+            self.winner()
 
         elif self.dealtype == "elevator":
             self.elevator()
+            print("people declare low or high")
+            input("click enter once people have determined if they're going low or high")
+            self.winner()
             self.reveal_all_hands()
-            self.winner_split()
 
         elif self.dealtype == "baseball":
             self.baseball()
-            self.reveal_all_hands()
             self.winner()
+            self.reveal_all_hands()
 
         elif self.dealtype == "1_card_screw":
             self.one_card_screw()
 
+        #need to figure out wild programming
         elif self.dealtype == "D_and_G":
             self.d_and_g()
+            print("people declare low or high")
+            input("click enter once people have determined if they're going low or high")
+            self.winner()
             self.reveal_all_hands()
-            self.winner_split()
 
+        #need to figure out adding in blind
         elif self.dealtype == "kings":
             self.kings()
 
         elif self.dealtype == "7/27":
             self.seven_twentyseven()
+            self.winner()
             self.reveal_all_hands()
-            self.winner_split()
 
+        elif self.dealtype == "bipolor":
+            self.bipolor()
+            self.winner()
+            self.reveal_all_hands()
 
     #game deal functions
-    def sevencard(self):
+    def queens(self):
         "game play for 7 card stud"
         while(self.game_over == False):
             #deal two down cards to each player
             self.deal_down(display=False)
-            self.deal_down()
+            self.deal_down(display=False)
 
+            Queen_up = False
             for i in range(4):
                 #deal next up card
                 self.deal_up()
+
+                #find new wild
+                for player in self.players:
+                    up_card_rank = player.hand.cards[-1].rank
+                    if Queen_up:
+                        self.wilds[1] = up_card_rank
+                        Queen_up = False
+                    if up_card_rank == "Queen":
+                        Queen_up = True
 
                 #betting for the round
                 self.current_bet = 0
@@ -585,6 +609,7 @@ class Game():
 
             #flip middle card
             self.table.cards[4].type = "up"
+            self.wilds = [self.table.cards[4].rank]
             print(self)
 
             self.current_bet = 0
@@ -592,8 +617,6 @@ class Game():
             if self.game_over == True:
                 break
 
-            print("people declare low or high")
-            input("click enter once people have determined if their going low or high")
             self.game_over = True
 
     def one_card_screw(self):
@@ -801,8 +824,12 @@ class Game():
             #get payout amount
             payout = self.pot
 
+            # blind = Player("blind", 0)
+            # blind.hand.cards = self.table.cards[5:]
+
             num_losers = 0
             for player_tuple in players_in:
+
                 print(f"{player_tuple[0].name} you went in the {player_tuple[1]}")
                 result = input(f" {player_tuple[0].name} did you win, lose, or tie (w/l/t)?  ")
 
@@ -911,6 +938,66 @@ class Game():
                 if len(eligible_players) == 0:
                     print("breaking")
                     break
+
+            self.game_over = True
+
+    def bipolor(self):
+        "game play for bipolor"
+        while(self.game_over == False):
+            baseball = True
+            self.wilds = ["3", "9"]
+
+            four_price = 5
+            #deal two down cards to each player
+            self.deal_down(display=False)
+            self.deal_down()
+            four_price = self.buy_down_four(four_price)
+
+            Queen_up = False
+            for i in range(4):
+
+                #deal next up card
+                self.deal_up()
+
+                for player in self.players:
+                    if player.hand.cards[-1].rank == "9":
+                        baseball = True
+                        print("Game changed to Baseball")
+                        self.wilds = ["3", "9"]
+                    elif player.hand.cards[-1].rank == "Queen":
+                        baseball = False
+                        print("Game changed to Queens")
+                        self.wilds = ["Queen", "Queen"]
+
+                if baseball:
+                    four_price = self.buy_up_four(four_price)
+                #if Queens find wilds
+                else:
+                    for player in self.players:
+                        up_card_rank = player.hand.cards[-1].rank
+                        if Queen_up:
+                            self.wilds[1] = up_card_rank
+                            Queen_up = False
+                        if up_card_rank == "Queen":
+                            Queen_up = True
+
+                #betting for the round
+                self.current_bet = 0
+                self.betting(self.players)
+                if self.game_over == True:
+                    break
+
+            if self.game_over == True:
+                break
+
+            self.deal_down()
+            if baseball:
+                four_price = self.buy_down_four(four_price)
+
+            self.current_bet = 0
+            self.betting(self.players)
+            if self.game_over == True:
+                break
 
             self.game_over = True
 
@@ -1131,81 +1218,174 @@ class Game():
         self.game_over = everyone_folded
 
     def winner(self):
+
         if self.winning_player != None:
             self.winning_player.chip_stack += self.pot
             return None
 
-        winner_recorded = False
-        while(winner_recorded == False):
-            try:
-                winners = input("Who is the winner? (Enter player name, if tie seperate names by ',')   ")
+        players_going_high = []
+        players_going_low = []
 
-                winning_players = winners.split(",")
-                payout = self.pot / len(winning_players)
+        split_games = ["0/54",
+                        "7/27",
+                        "7_card_screw",
+                        "elevator",
+                        "D_and_G",
+                        "holdem_split"]
 
-                for player in self.players:
-                    if player.name in winning_players:
-                        player.chip_stack += payout
-                        winner_recorded = True
-            except:
-                print("error processing winner try again")
+        #get inputs for who is going high and who is going low
+        if self.dealtype in split_games:
+            player_names = []
+            for player in self.players:
+                player_names.append(player.name)
 
-    def winner_split(self):
-        if self.winning_player != None:
-            self.winning_player.chip_stack += self.pot
-            return None
+            while(1==1):
+                try:
+                    players = input("Who is going high? Enter names seperated by ' ' (if none click enter).  ")
+                    players_going_high = players.split(" ")
+                    if players_going_high != []:
+                        for name in players_going_high:
+                            if name not in player_names:
+                                raise Exception()
+                    break
+                except:
+                    print("Error proccessing players going high")
 
-        winner_recorded = False
-        while(winner_recorded == False):
-            try:
-                print("special inputs: if only high winer enter 'winner:', if multiple high winners enter 'winner_1,winner_2:winner_3'")
-                winners = input("Who is the winner? (Enter winners names in the form high_winners:low_winners)  ")
-                #for only one person winning enter them as "player_name:"
-                high_low = winners.split(":")
-                high_winners = high_low[0].split(",")
-                low_winners = high_low[1].split(",")
+            while(1==1):
+                try:
+                    players = input("Who is going low? Enter names seperated by ' ' (if none click enter).  ")
+                    players_going_low = players.split(" ")
+                    if players_going_low != []:
+                        for name in players_going_low:
+                            if name not in player_names:
+                                raise Exception()
+                    break
+                except:
+                    print("Error proccessing players going low")
 
-                #possible winner senerios
-                if high_winners[0] == '':
-                    low_winnings = self.pot / len(low_winners)
-                elif low_winners[0] == '':
-                    high_winnings = self.pot / len(high_winners)
-                else:
-                    low_winnings = (self.pot / 2) / len(low_winners)
-                    high_winnings = (self.pot / 2) / len(high_winners)
+        # calculate high and low winners
+        if self.dealtype == "0/54":
+
+            high_winners, low_winners = determine_winner_0_54(self.players, players_going_high, players_going_low)
+
+        elif self.dealtype == "7/27":
+
+            high_winners, low_winners = determine_winner_7_27(self.player, players_going_high, players_going_low)
+
+        elif self.dealtype == "7_card_screw":
+
+            for player in self.players:
+                if player.name in players_going_high:
+                    determine_hand_high(player, self.table.cards, self.wilds)
+                if player.name in players_going_low:
+                    determine_hand_low(player, self.table.cards, self.wilds)
+
+            high_winners = calculate_high_winner(self.players, players_going_high)
+            low_winners = calculate_low_winner(self.players, players_going_low)
+
+        elif self.dealtype == "elevator":
+
+            for player in self.players:
+                determine_elivator_hands(player, self.table, self.wilds)
+
+            high_winners = calculate_high_winner(self.players, players_going_high)
+            low_winners = calculate_low_winner(self.players, players_going_low)
+
+        elif self.dealtype == "sevencard_split":
+            for player in self.players:
+                determine_hand_high(player, self.table.cards, self.wilds)
+                players_going_high.append(player.name)
+            high_winners = calculate_high_winner(self.players, players_going_high)
+
+            low_winners = calculate_down_spade_winner(self.players)
+
+        elif self.dealtype == "D_and_G":
+
+            #find down wilds
+            ranks = ["Ace", "King", "Queen", "Jack", "10", "9", "8", "7", "6", "5", "4", "3", "2"]
+            winners = []
+            for player in self.players:
+                high_wild = []
+                high_wild_rank_index = 0
+                low_wild = []
+                low_wild_rank_index = 100
+                for card in player.hand.cards:
+                    if card.type == "down" and card.rank != "Ace":
+                        if ranks.index(card.rank) > high_wild_rank_index:
+                            high_wild = [card.rank]
+                            high_wild_rank_index = ranks.index(card.rank)
+                        if ranks.index(card.rank) < low_wild_rank_index:
+                            low_wild = [card.rank]
+                            low_wild_rank_index = ranks.index(card.rank)
+
+                determine_hand_high(player, self.table.cards, high_wild)
+                determine_hand_low(player, self.table.cards, low_wild)
+
+                print(player.name, high_wild, low_wild)
+
+            high_winners = calculate_high_winner(self.players, players_going_high)
+            low_winners = calculate_low_winner(self.players, players_going_low)
+
+        elif self.dealtype == "holdem_split":
+
+            for player in self.players:
+                determine_omaha_hands(player, self.table, self.wilds)
+
+            high_winners = calculate_high_winner(self.players, players_going_high)
+            low_winners = calculate_low_winner(self.players, players_going_low)
+
+        else:
+
+            for player in self.players:
+                determine_hand_high(player, self.table.cards, self.wilds)
+                players_going_high.append(player.name)
+
+            high_winners = calculate_high_winner(self.players, players_going_high)
+            low_winners = []
+
+        #print best hands for players
+        print()
+        print("###############################################################")
+        for player in self.players:
+            if self.dealtype == "0/54" or self.dealtype == "7/27":
+                print(f"{player.name}: Best high = {player.high_score}, Best low = {player.low_score}")
+            elif self.dealtype in split_games:
+                print(f"{player.name}: Best high = {player.high_hand[0]}, Best low = {player.low_hand[0]}")
+            else:
+                print(f"{player.name}: Best high = {player.high_hand[0]}")
+
+        self.payout(high_winners, low_winners)
 
 
-                #possible winner senerios
-                if len(high_winners) == 0:
-                    low_winnings = self.pot
-                elif len(low_winners) == 0:
-                    high_winnings = self.pot
+    def payout(self, high_winners, low_winners):
+        #possible winner senerios
+        if len(high_winners) == 0:
+            low_winnings = self.pot / len(low_winners)
+            high_winnings = 0
+        elif len(low_winners) == 0:
+            low_winnings = 0
+            high_winnings = self.pot / len(high_winners)
+        else:
+            low_winnings = (self.pot / 2) / len(low_winners)
+            high_winnings = (self.pot / 2) / len(high_winners)
 
-                #confirm whether inputed names awards out the proper amount of money
-                awarded_chips = 0
-                for player in self.players:
-                    if player.name in low_winners:
-                        awarded_chips += low_winnings
-                    elif player.name in high_winners:
-                        awarded_chips += high_winnings
+        print()
+        print(f"High payout = {high_winnings}, High winners are:")
+        for player in high_winners:
+            print(f"\t{player.name}")
 
-                if awarded_chips != self.pot:
-                    #throw error
-                    error = []
-                    print(error[2])
+        print(f"Low payout = {low_winnings}, Low winners are:")
+        for player in low_winners:
+            print(f"\t{player.name}")
+        print("###############################################################")
+        print()
 
-                #award people their winnings
-                for player in self.players:
-                    if player.name in low_winners:
-                        player.chip_stack += low_winnings
-                    elif player.name in high_winners:
-                        player.chip_stack += high_winnings
-
-
-                winner_recorded = True
-
-            except:
-                print("error processing winner try again")
+        #award people their winnings
+        for player in self.players:
+            if player in low_winners:
+                player.chip_stack += low_winnings
+            elif player in high_winners:
+                player.chip_stack += high_winnings
 
     def deal_up(self):
         for player in self.players:
