@@ -372,6 +372,7 @@ class Game():
 
         #create a new player list to store nick order
         players_original = self.players.copy()
+        self.players = players_original[self.dealer_i:] + players_original[:self.dealer_i]
         highest_num_legs = 0
 
         while(highest_num_legs < 3):
@@ -415,7 +416,7 @@ class Game():
                     challenger_list = []
                     #side bets
                     for player in player_list:
-                        player_challenging = input(f"{player.name} are you in challenging {player_in_name} y/n? (they have {player.legs} legs)  ")
+                        player_challenging = input(f"{player.name} are you in challenging {player_in_name} y/n? (You have {player.legs} legs)  ")
                         if player_challenging == "y":
                             challenger_list.append(player)
                             challenged = True
@@ -623,6 +624,7 @@ class Game():
         "game play for one card pass the trash"
 
         players_original = self.players.copy()
+        self.players = players_original[self.dealer_i:] + players_original[:self.dealer_i]
 
         #create a dictonary of the players where the player's name is the key
         #and the key value is whether or not the player is still in
@@ -630,7 +632,6 @@ class Game():
         for player in self.players:
             player_dic[player.name] = True
 
-        up_or_down = input("Are we passing down or up D/U?  ")
         stack_num = input("How many stacks of 5 chips are each person going to start with?  ")
         self.pot = (int(stack_num) * 5) * len(self.players)
         for player in self.players:
@@ -641,7 +642,7 @@ class Game():
 
             #reset deck if not enough cards
             if len(self.deck.cards) < len(self.players) + 1:
-                print("New Deck")
+                print("\n##########\n### New Deck ###\n##########")
                 self.deck = Deck()
 
             #deal everyone 1 card
@@ -713,10 +714,6 @@ class Game():
                 if player_dic[player_name] == True:
                     self.players.append(players_original[player_i])
 
-            print("next order:")
-            for player in self.players:
-                print(player.name)
-
             #reset players hands
             for player in self.players:
                 player.hand.reset()
@@ -774,6 +771,7 @@ class Game():
 
         #create a new player list to store nick order
         players_original = self.players.copy()
+        self.players = players_original[self.dealer_i:] + players_original[:self.dealer_i]
 
         #have people put in initial antie amounts
         for player in self.players:
@@ -791,15 +789,15 @@ class Game():
             self.table.cards[1].type = "up"
 
             #deal 3 down cards to each player
-            for i in range(2):
+            for i in range(3):
                 self.deal_down(display=False)
-            self.deal_down()
 
             #print player hands
             string = ''
             for player in self.players:
                 string += player.coded_str_player(self.deck.deck_code, self.card_color)
             print(string)
+            print(self)
 
             #loop through players asking who wants to go in
             players_in = []
@@ -816,10 +814,10 @@ class Game():
                     players_in.append((player, position))
 
             #display table with all cards flipped
+            self.reveal_all_hands()
             for card in self.table.cards:
                 card.type = "up"
             print(self)
-            self.reveal_all_hands()
 
             #get payout amount
             payout = self.pot
@@ -938,12 +936,14 @@ class Game():
             while(1==1):
                 players_to_remove = []
 
+                all_passed = True
                 for player in eligible_players:
                     # if player in eligible_players:
                     hit = input(f"{player.name} (you have {3 - player.legs} passes left) do you want another card y/n?  ")
                     if hit == "y":
                         card = self.deck.draw_card()
                         player.hand.add_up_card(card)
+                        all_passed = False
                     else:
                         player.legs += 1
 
@@ -970,7 +970,7 @@ class Game():
                     eligible_players.remove(player)
 
                 #condition to end game
-                if len(eligible_players) == 0:
+                if len(eligible_players) == 0 or all_passed == True:
                     print("breaking")
                     break
 
@@ -1139,6 +1139,7 @@ class Game():
 
                                 #pay for four
                                 player.chip_stack -= four_price
+                                self.pot += four_price
                                 #increase four_price
                                 four_price += 5
 
@@ -1148,12 +1149,12 @@ class Game():
                                 player.hand.cards.append(card)
 
                                 print(self)
+                                four_found = True
 
                                 break
 
                         if four_found == False:
                             print("Error processing buying of four. System shows you do not have a four.")
-
 
                     else:
                         four_recorded = True
@@ -1174,6 +1175,7 @@ class Game():
                         if four_bought == 'y':
                             #pay for four
                             player.chip_stack -= four_price
+                            self.pot += four_price
                             #increase four_price
                             four_price += 5
                             #flip down four
@@ -1231,9 +1233,11 @@ class Game():
         if player1.name == winner:
             player1.chip_stack += payout
             player2.chip_stack -= payout
-        else:
+        elif player2.name == winner:
             player1.chip_stack -= payout
             player2.chip_stack += payout
+        else:
+            pass
 
     def reveal_all_hands(self):
         string = ""
@@ -1278,7 +1282,7 @@ class Game():
                 try:
                     players = input("Who is going high? Enter names seperated by ' ' (if none click enter).  ")
                     players_going_high = players.split(" ")
-                    if players_going_high != []:
+                    if players_going_high[0] != '':
                         for name in players_going_high:
                             if name not in player_names:
                                 raise Exception()
@@ -1290,7 +1294,7 @@ class Game():
                 try:
                     players = input("Who is going low? Enter names seperated by ' ' (if none click enter).  ")
                     players_going_low = players.split(" ")
-                    if players_going_low != []:
+                    if players_going_low[0] != '':
                         for name in players_going_low:
                             if name not in player_names:
                                 raise Exception()
@@ -1303,9 +1307,35 @@ class Game():
 
             high_winners, low_winners = determine_winner_0_54(self.players, players_going_high, players_going_low)
 
+            #pig conditions
+            for player in self.players:
+                if (player.name in players_going_high) and (player.name in players_going_low):
+                    #won high but lost low
+                    if (player in high_winners) and (player not in low_winners):
+                        print(f"{player.name} won high but lost low")
+                        players_going_high.remove(player.name)
+                    #won low but lost high
+                    elif (player in low_winners) and (player not in high_winners):
+                        print(f"{player.name} won low but lost high")
+                        players_going_low.remove(player.name)
+                    high_winners, low_winners = determine_winner_0_54(self.players, players_going_high, players_going_low)
+
         elif self.dealtype == "7/27":
 
-            high_winners, low_winners = determine_winner_7_27(self.player, players_going_high, players_going_low)
+            high_winners, low_winners = determine_winner_7_27(self.players, players_going_high, players_going_low)
+
+            #pig conditions
+            for player in self.players:
+                if (player.name in players_going_high) and (player.name in players_going_low):
+                    #won high but lost low
+                    if (player in high_winners) and (player not in low_winners):
+                        print(f"{player.name} won high but lost low")
+                        players_going_high.remove(player.name)
+                    #won low but lost high
+                    elif (player in low_winners) and (player not in high_winners):
+                        print(f"{player.name} won low but lost high")
+                        players_going_low.remove(player.name)
+                    high_winners, low_winners = determine_winner_7_27(self.players, players_going_high, players_going_low)
 
         elif self.dealtype == "7_card_screw":
 
@@ -1318,6 +1348,20 @@ class Game():
             high_winners = calculate_high_winner(self.players, players_going_high)
             low_winners = calculate_low_winner(self.players, players_going_low)
 
+            #pig conditions
+            for player in self.players:
+                if (player.name in players_going_high) and (player.name in players_going_low):
+                    #won high but lost low
+                    if (player in high_winners) and (player not in low_winners):
+                        print(f"{player.name} won high but lost low")
+                        players_going_high.remove(player.name)
+                    #won low but lost high
+                    elif (player in low_winners) and (player not in high_winners):
+                        print(f"{player.name} won low but lost high")
+                        players_going_low.remove(player.name)
+                    high_winners = calculate_high_winner(self.players, players_going_high)
+                    low_winners = calculate_low_winner(self.players, players_going_low)
+
         elif self.dealtype == "elevator":
 
             for player in self.players:
@@ -1325,6 +1369,20 @@ class Game():
 
             high_winners = calculate_high_winner(self.players, players_going_high)
             low_winners = calculate_low_winner(self.players, players_going_low)
+
+            #pig conditions
+            for player in self.players:
+                if (player.name in players_going_high) and (player.name in players_going_low):
+                    #won high but lost low
+                    if (player in high_winners) and (player not in low_winners):
+                        print(f"{player.name} won high but lost low")
+                        players_going_high.remove(player.name)
+                    #won low but lost high
+                    elif (player in low_winners) and (player not in high_winners):
+                        print(f"{player.name} won low but lost high")
+                        players_going_low.remove(player.name)
+                    high_winners = calculate_high_winner(self.players, players_going_high)
+                    low_winners = calculate_low_winner(self.players, players_going_low)
 
         elif self.dealtype == "sevencard_split":
             for player in self.players:
@@ -1361,6 +1419,20 @@ class Game():
             high_winners = calculate_high_winner(self.players, players_going_high)
             low_winners = calculate_low_winner(self.players, players_going_low)
 
+            #pig conditions
+            for player in self.players:
+                if (player.name in players_going_high) and (player.name in players_going_low):
+                    #won high but lost low
+                    if (player in high_winners) and (player not in low_winners):
+                        print(f"{player.name} won high but lost low")
+                        players_going_high.remove(player.name)
+                    #won low but lost high
+                    elif (player in low_winners) and (player not in high_winners):
+                        print(f"{player.name} won low but lost high")
+                        players_going_low.remove(player.name)
+                    high_winners = calculate_high_winner(self.players, players_going_high)
+                    low_winners = calculate_low_winner(self.players, players_going_low)
+
         elif self.dealtype == "holdem_split":
 
             for player in self.players:
@@ -1368,6 +1440,20 @@ class Game():
 
             high_winners = calculate_high_winner(self.players, players_going_high)
             low_winners = calculate_low_winner(self.players, players_going_low)
+
+            #pig conditions
+            for player in self.players:
+                if (player.name in players_going_high) and (player.name in players_going_low):
+                    #won high but lost low
+                    if (player in high_winners) and (player not in low_winners):
+                        print(f"{player.name} won high but lost low")
+                        players_going_high.remove(player.name)
+                    #won low but lost high
+                    elif (player in low_winners) and (player not in high_winners):
+                        print(f"{player.name} won low but lost high")
+                        players_going_low.remove(player.name)
+                    high_winners = calculate_high_winner(self.players, players_going_high)
+                    low_winners = calculate_low_winner(self.players, players_going_low)
 
         else:
 
@@ -1390,7 +1476,6 @@ class Game():
                 print(f"{player.name}: Best high = {player.high_hand[0]}")
 
         self.payout(high_winners, low_winners)
-
 
     def payout(self, high_winners, low_winners):
         #possible winner senerios
@@ -1419,7 +1504,7 @@ class Game():
         for player in self.players:
             if player in low_winners:
                 player.chip_stack += low_winnings
-            elif player in high_winners:
+            if player in high_winners:
                 player.chip_stack += high_winnings
 
     def deal_up(self):
@@ -1493,7 +1578,10 @@ class Game():
 
                 if bet_action == "raise":
                     bet = input(f"what is your raise?:  ")
-                    bet = current_bet - player.bet + float(bet)
+                    if float(bet) < 0:
+                        raise Exception("Can't raise a negative number")
+                    else:
+                        bet = current_bet - player.bet + float(bet)
 
                 bet = float(bet)
                 #exchange money

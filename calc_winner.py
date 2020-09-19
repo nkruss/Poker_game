@@ -50,7 +50,6 @@ def calculate_down_spade_winner(player_list):
                     high_spade_rank = ranks.index(card.rank)
     return winners
 
-#flushes are still creating issues with wild cards
 def determine_hand_high(player, table_cards, wild_cards: list):
     """
     wild_cards is a list of the ranks of the possible wild cards
@@ -195,7 +194,7 @@ def determine_hand_high(player, table_cards, wild_cards: list):
                 score = flush_score
 
     #check for straight flush
-    if flush_exists:
+    if flush_exists and current_best != hand_order.index("5_of_kind"):
         best_straight_flush_i = 14
         for suit in hand_suits:
             if len(hand_suits[suit]) >= 5 - num_wilds:
@@ -377,7 +376,7 @@ def determine_winner_7_27(player_list, players_going_high, players_going_low):
                 else:
                     player.low_score += int(card.rank)
             #determine if they have a better or equal score to the current winner
-            if len(low_winners) == 0:
+            if len(low_winners) == 0 and player.low_score <= 7:
                 low_winners.append(player)
             elif player.low_score < low_winners[0].low_score:
                 low_winners = [player]
@@ -388,21 +387,29 @@ def determine_winner_7_27(player_list, players_going_high, players_going_low):
 
         #check to see if given player is going high
         if player.name in players_going_high:
+            num_Aces = 0
             #get player score
             player.high_score = 0
             for card in player.hand.cards:
                 if card.rank == "Ace":
                     player.high_score += 11
+                    num_Aces += 1
                 elif card.rank == "10":
                     player.high_score += 10
                 elif len(card.rank) > 1:
                     player.high_score += .5
                 else:
                     player.high_score += int(card.rank)
+
+            #using aces insure hand score is less then or equal to 27
+            for i in range(num_Aces):
+                if player.high_score > 27:
+                    player.high_score -= 10
+
             #determine if they have a better or equal score to the current winner
-            if len(high_winners) == 0:
+            if len(high_winners) == 0 and player.high_score <= 27:
                 high_winners.append(player)
-            elif player.high_score > high_winners[0].high_score:
+            elif player.high_score > high_winners[0].high_score and player.high_score <= 27:
                 high_winners = [player]
             elif player.high_score == high_winners[0].high_score:
                 high_winners.append(player)
@@ -410,9 +417,6 @@ def determine_winner_7_27(player_list, players_going_high, players_going_low):
             #print(f"{player.name}: high score = {player.high_score}")
 
     return (high_winners, low_winners)
-
-def determine_1_card_screw_loser(player_list):
-    pass
 
 def determine_elivator_hands(player, table, wild_cards: list):
 

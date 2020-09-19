@@ -82,3 +82,4 @@ class Player():
         self.low_hand = (None, -1000000)
         self.high_score = 0
         self.low_score = 0
+        self.legs = 0
