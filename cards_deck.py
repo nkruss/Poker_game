@@ -14,7 +14,7 @@ class color:
    UNDERLINE = '\033[4m'
    END = '\033[0m'
 
-def ascii_version_of_card(*cards, return_string=True, current_player=None, deck_code=None, card_color=True):
+def ascii_version_of_card(*cards, return_string=True, current_player=None, deck_code=None, card_color=False):
     #got off internet
     """
     Instead of a boring text version of the card we render an ASCII image of the card.
@@ -191,7 +191,7 @@ def ascii_version_of_hidden_card(*cards, return_string=True, current_player=None
     else:
         return lines
 
-def ascii_version_of_hand(cards, current_player=None, deck_code=None, card_color=True):
+def ascii_version_of_hand(cards, current_player=None, deck_code=None, card_color=False):
     """
     Essentially the dealers method of print ascii cards. This method hides the first card, shows it flipped over
     :param cards: A list of card objects, the first will be hidden

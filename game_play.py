@@ -76,7 +76,7 @@ class Game():
             self.rules = "David and Goliath: 7 card stud, if you go high lowest down card is wild, if you go low highest down card is wild, last down card can be bought up"
             self.dealtype = "D_and_G"
         elif gametype == "Kings":
-            self.rules = "Kings: ___"
+            self.rules = "Kings: __"
             self.dealtype = "kings"
         elif gametype == "7/27":
             self.rules = "7/27: Closest to 7 and 27 from below (aces=1 or 11, face-cards=.5), can pass getting aditional card 3 times before hand is locked"
@@ -105,13 +105,6 @@ class Game():
             for player in self.players:
                 # string += str(player)
                 string += player.coded_str_player(self.deck.deck_code, self.card_color)
-
-
-        #print to file for dealer
-        poker_hands = open('poker_hands.txt', 'w')
-        poker_hands.close()
-        for player in self.players:
-            player.print_hand_to_file()
 
         return string
 
@@ -1230,14 +1223,17 @@ class Game():
         else:
             payout = self.pot
 
-        if player1.name == winner:
-            player1.chip_stack += payout
-            player2.chip_stack -= payout
-        elif player2.name == winner:
-            player1.chip_stack -= payout
-            player2.chip_stack += payout
-        else:
-            pass
+        while(1==1):
+            if player1.name == winner:
+                player1.chip_stack += payout
+                player2.chip_stack -= payout
+                break
+            elif player2.name == winner:
+                player1.chip_stack -= payout
+                player2.chip_stack += payout
+                break
+            else:
+                print("Enter valid winner name")
 
     def reveal_all_hands(self):
         string = ""

@@ -4,6 +4,12 @@ from hand_class import *
 from cards_deck import *
 
 def calculate_high_winner(player_list, players_going_high):
+    """
+    Function to determine the high winner out of the players declaired for going
+    high.
+
+    Returns list of winning players
+    """
     winners = []
     for player in player_list:
         if player.name in players_going_high:
@@ -20,6 +26,12 @@ def calculate_high_winner(player_list, players_going_high):
     return winners
 
 def calculate_low_winner(player_list, players_going_low):
+    """
+    Function to determine the low winner out of the players declaired for going
+    low.
+
+    Returns list of winning players
+    """
     winners = []
     for player in player_list:
         if player.name in players_going_low:
@@ -30,12 +42,14 @@ def calculate_low_winner(player_list, players_going_low):
             elif player.low_hand[1] == winners[0].low_hand[1]:
                 winners.append(player)
 
-    # for winner_i in range(len(winners)):
-    #     winners[winner_i] = winners[winner_i].name
-
     return winners
 
 def calculate_down_spade_winner(player_list):
+    """
+    Function to determine which player has the highest down spade (Ace's are high)
+
+    Returns list containing the winning player
+    """
     ranks = ["Ace", "King", "Queen", "Jack", "10", "9", "8", "7", "6", "5", "4", "3", "2"]
     winners = []
     high_spade_rank = 100
@@ -52,7 +66,16 @@ def calculate_down_spade_winner(player_list):
 
 def determine_hand_high(player, table_cards, wild_cards: list):
     """
-    wild_cards is a list of the ranks of the possible wild cards
+    Calculate the strength of a players high hand and store the hand strength
+    in the players score property
+
+    Wild_cards is a list of the ranks of the possible wild cards for the current
+    game.
+
+    When calculating hand each type of hand is given a score based off of it's
+    place within the hand hierachy (score = hand_index * 1000). Then to
+    differentiat between the strength of hands of the same hand type, ranks are
+    subtracted from the score
     """
 
     ranks = ["Ace", "King", "Queen", "Jack", "10", "9", "8", "7", "6", "5", "4", "3", "2", "Ace"]
@@ -67,32 +90,36 @@ def determine_hand_high(player, table_cards, wild_cards: list):
     #process player hands
     possible_cards = player.hand.cards + table_cards
     for card in possible_cards:
+        #determine number of wild cards in player hand
         if card.rank in wild_cards:
             num_wilds += 1
         else:
+            #determine number of each rank type that is in player hand
             if card.rank not in hand_ranks:
                 hand_ranks[card.rank] = 1
                 remaining_ranks_in_hand.append(ranks.index(card.rank))
             else:
                 hand_ranks[card.rank] += 1
 
+            #determine card suit infomation about cards in player hand
             if card.suit not in hand_suits:
                 hand_suits[card.suit] = [card.rank]
             else:
                 hand_suits[card.suit].append(card.rank)
 
     #determine best set hand
+    ## set = (num_cards in set, set_rank)
     highest_set = (0, "2")
     second_highest_set = (0, "2")
     for key in hand_ranks:
 
-        #found new highest number in a set
+        #found new highest set
         if hand_ranks[key] > highest_set[0]:
             second_highest_set = highest_set
             highest_set = (hand_ranks[key], key)
         #found a set using the same number of cards
         elif hand_ranks[key] == highest_set[0]:
-            #if new set's rank is higher shift the previous set to secound
+            #if new set's rank is higher value shift the previous set to second
             #position and update highest set
             if ranks.index(key) < ranks.index(highest_set[1]):
                 second_highest_set = highest_set
@@ -107,7 +134,9 @@ def determine_hand_high(player, table_cards, wild_cards: list):
             if ranks.index(key) <= ranks.index(second_highest_set[1]):
                 second_highest_set = (hand_ranks[key], key)
 
+    #property for determining the best found hand
     current_best = 0
+
     #5 of kind
     if highest_set[0] >= 5 - num_wilds:
         high_hand = f"5 of a Kind - {highest_set[1]}'s"
@@ -182,7 +211,6 @@ def determine_hand_high(player, table_cards, wild_cards: list):
 
             #get score of the flush
             rank_index_list.sort()
-            rank_index_list.reverse()
             flush_score = (hand_order.index("flush") * 1000)
             for i in range(len(rank_index_list)):
                 flush_score -= (rank_index_list[i] * (2 ** i))
@@ -473,21 +501,14 @@ def determine_king_hands(player, table, direction):
     return None
 
 def determine_omaha_hands(player, table, wild_cards: list):
+    """
+    Function for determining the best had a player has in a omaha game using
+    two cards from the table. Looks at every possible combination of cards in
+    player hand and cards on the table to determine the best hand.
+    """
     table_hands = []
 
-    # 1 2 3 4 5
-
-    # 1 2 3
-    # 1 2   4
-    # 1 2     5
-    # 1   3 4
-    # 1   3   5
-    # 1     4 5
-    #   2 3 4
-    #   2 3   5
-    #   2   4 5
-    #     3 4 5
-
+    #set up different combinations of cards from the table
     table_hands.append([table.cards[0], table.cards[1], table.cards[2]])
     table_hands.append([table.cards[0], table.cards[1], table.cards[3]])
     table_hands.append([table.cards[0], table.cards[1], table.cards[4]])
