@@ -6,7 +6,7 @@ Contact info - nkruss@light-waves.net
 
 A poker gameplay system to host and play a variety of different poker games with others.
 
-Ga
+Gameplay is located in the poker.py function which the table host will run and screen share. While playing a game all player cards will be displayed, with down card information being encrypted into a three character code before being shown. The encryption makes it so that only the player running card_decryptor.py with the correct "card offset" and "card multiplier" values can get the correct card value relating to the three character code.
 
 ## Poker game options
 
@@ -35,7 +35,8 @@ Ga
 
 Run poker.py file and screen share the poker.py outputs with the other players. Once file begins running input names of people playing in the game then enter "done". Then send each player privately their "card offset" and "card multiplier" values which can be found in the created player_info.txt file. Finally begin to play.
 
-Note - It is the job of the game host running poker.py to input all player actions.
+Notes
+  * It is the job of the game host running poker.py to input all player actions.
 
 ## How to play in a game
 
@@ -48,6 +49,10 @@ Card Decryptor Special Commands
   * "remove" - Remove select card code from hand (card code will be specified by index of the card within the hand)
   * "reorder" - Reorder the cards in hand
   * "quit" - terminate card_decryptor.py
+
+Notes
+  * When entering card codes be careful to enter "L" opposed to "l"
+  * If you input another player's cards you will get card information back but there is no guarantee that card information is at all accurate
 
 ## Additional Notes
 
