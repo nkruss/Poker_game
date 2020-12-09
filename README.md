@@ -56,4 +56,10 @@ Notes
 
 ## Additional Notes
 
-Colored cards only function for linux systems. If running repository on a system that is not linux or doesn't run bash you will need to select "n" when asked if you want to use colored cards.  
+Colored cards - Only functional for linux systems. If running repository on a system that is not linux or doesn't run bash you will need to select "n" when asked if you want to use colored cards.
+
+Pig condition  
+  * If a person pigs on a hand they will win everything if they win both high and low
+  * If the win either high or low and lose the other they get nothing
+  * If they win either high or low and tie on the other they will split the half they tied on and take the full half they won
+  * If they tie on both high and low they will split both pots
