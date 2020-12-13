@@ -33,7 +33,7 @@ Gameplay is located in the poker.py function which the table host will run and s
 
 ## How to host a game
 
-Run poker.py file and screen share the poker.py outputs with the other players. Once file begins running input names of people playing in the game then enter "done". Then send each player privately their "card offset" and "card multiplier" values which can be found in the created player_info.txt file. Finally begin to play.
+Run poker.py file and screen share the poker.py outputs with the other players. Once file begins running input names of people playing in the game then enter "done". Then send each player privately their "card offset" and "card multiplier" values which can be found in the created player_info.txt file. 
 
 Notes
   * It is the job of the game host running poker.py to input all player actions.
